@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adam Zuhruf | Creative Technologist — Portofolio 3D Interaktif</title>
+    <meta
+      name="description"
+      content="Portofolio resmi Adam Zuhruf Ananda Farendra (D4 Manajemen Informatika UNESA, IPK 3.72/4.00, MSIB Celerates 900 Jam Nilai A): Full-Stack Web/App Developer, UI/UX Designer & Sistem Interaktif."
+    />
+    <link rel="canonical" href="https://adamzuhruf.github.io/portofolio-adam-zuhruf/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Adam Zuhruf | Creative Technologist — Portofolio 3D Interaktif" />
+    <meta
+      property="og:description"
+      content="Jelajahi panggung 3D interaktif, simulator langsung SPK BWM-SAW, Safe-Pay Escrow, POS Kasir HPP, serta 50+ layar desain UI/UX Figma karya Adam Zuhruf."
+    />
+    <meta property="og:url" content="https://adamzuhruf.github.io/portofolio-adam-zuhruf/" />
+    <meta property="og:image" content="https://adamzuhruf.github.io/portofolio-adam-zuhruf/assets/portrait-studio.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0F172A" />
+    <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.0" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.0" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Adam Zuhruf Ananda Farendra",
+        "alternateName": "Adam Zuhruf | Creative Technologist",
+        "jobTitle": "Full-Stack Web & Application Developer, UI/UX Designer",
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "Universitas Negeri Surabaya (UNESA)"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Sidoarjo",
+          "addressRegion": "Jawa Timur",
+          "addressCountry": "ID"
+        },
+        "url": "https://adamzuhruf.github.io/portofolio-adam-zuhruf/",
+        "sameAs": [
+          "https://github.com/AdamZuhruf",
+          "https://www.linkedin.com/in/adamzuhruf",
+          "https://www.youtube.com/@adamzuhruf_aad",
+          "https://x.com/rrsinoi",
+          "https://www.threads.com/@adam_zaf99",
+          "https://www.instagram.com/adam_zaf99/",
+          "https://www.tiktok.com/@zaren.az",
+          "https://t.me/adamzuhruf_aad",
+          "https://discord.com/users/1364204212623511574"
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+
+    <header class="site-header">
+      <div class="container nav-bar">
+        <a href="#beranda" class="brand">
+          <span class="brand-mark" aria-hidden="true">AZ</span>
+          <span>Adam Zuhruf | Creative Technologist</span>
+        </a>
+
+        <button
+          type="button"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="primary-navigation"
+          aria-label="Buka menu navigasi"
+        >
+          Menu
+        </button>
+
+        <nav aria-label="Navigasi utama">
+          <ul id="primary-navigation" class="nav-links">
+            <li><a href="#beranda">Beranda</a></li>
+            <li><a href="#proyek">Karya &amp; Demo</a></li>
+            <li><a href="#pengalaman">Pengalaman</a></li>
+            <li><a href="#sertifikasi">Sertifikasi</a></li>
+            <li><a href="#sosial">Media Sosial</a></li>
+            <li><a href="#kontak">Unduh &amp; Kontak</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section id="beranda" class="hero-stage" aria-labelledby="hero-title">
+        <div class="container hero-grid">
+          <div>
+            <span class="hero-badge" id="activity-badge-label">UNESA | Indonesia &bull; Portal Portofolio 3D Interaktif</span>
+            <h1 id="hero-title">Adam Zuhruf Ananda Farendra — Full-Stack Web, Sistem SPK &amp; Desain UI/UX</h1>
+            <p class="hero-subtitle">
+              Lulusan D4 Manajemen Informatika Universitas Negeri Surabaya (IPK 3.72 / 4.00 &middot; 150 SKS), Alumni MSIB &amp; CAMP Batch 2 Celerates (900 Jam, Nilai Akhir A / 89.34), serta Co-Founder Karya Berdua Official. Siap bekerja penuh waktu maupun remote segera.
+            </p>
+
+            <div class="cta-group">
+              <a href="#proyek" class="btn btn-primary">Jelajahi Karya &amp; Simulator</a>
+              <a href="./cv.html?mode=portfolio" class="btn btn-outline-light">
+                Portofolio &amp; CV Live (PDF)
+              </a>
+              <a
+                href="./api/export/cv.docx"
+                data-live-docx="cv"
+                class="btn btn-outline-light live-docx-btn"
+              >
+                Unduh CV Word (.docx)
+              </a>
+            </div>
+
+            <div id="hero-stats" class="hero-stats" aria-label="Indikator capaian utama"></div>
+          </div>
+
+          <div class="stage-3d-shell" aria-label="Panggung 3D Interaktif Portofolio">
+            <div class="canvas-frame">
+              <canvas id="hero-3d-canvas" aria-label="Objek 3D interaktif yang dapat diputar dengan kursor atau sentuhan"></canvas>
+              <div class="portrait-badge">
+                <img src="./assets/portrait-studio-circle.png" alt="Foto formal studio Adam Zuhruf Ananda Farendra" />
+                <div class="portrait-meta">
+                  <strong>Adam Zuhruf</strong>
+                  <span>Sidoarjo, Indonesia</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="controls-3d">
+              <div class="chip-row" role="group" aria-label="Bentuk geometri 3D">
+                <button type="button" class="chip-btn is-active" data-3d-mode="polyhedron">Icosahedron</button>
+                <button type="button" class="chip-btn" data-3d-mode="torus">Torus Knot</button>
+                <button type="button" class="chip-btn" data-3d-mode="lattice">Matrix Cube</button>
+              </div>
+              <div class="chip-row">
+                <button type="button" class="chip-btn" id="btn-3d-reset">Reset</button>
+                <button type="button" class="chip-btn" id="btn-3d-pause">Jeda 3D</button>
+              </div>
+            </div>
+            <p class="hint-3d" id="status-3d">Seret objek 3D dengan mouse atau jari untuk memutar perspektif secara langsung.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="proyek" class="section" aria-labelledby="proyek-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="proyek-title" class="section-title">Karya, Sistem Produksi &amp; Simulator Interaktif</h2>
+              <p class="section-lead">
+                Seluruh studi kasus dapat difilter, dicari menurut teknologi, dan dibuka dalam mode interaktif langsung di browser.
+              </p>
+            </div>
+          </div>
+
+          <div class="filter-toolbar">
+            <div class="filter-tabs" role="tablist" aria-label="Filter kategori proyek">
+              <button type="button" class="filter-tab is-active" data-cat="all">Semua Karya</button>
+              <button type="button" class="filter-tab" data-cat="fullstack">Full-Stack &amp; Sistem</button>
+              <button type="button" class="filter-tab" data-cat="pos">POS &amp; Bisnis</button>
+              <button type="button" class="filter-tab" data-cat="uiux">UI/UX &amp; Mobile</button>
+              <button type="button" class="filter-tab" data-cat="demo">Demo &amp; Karya Lainnya</button>
+            </div>
+            <label for="project-search" class="skip-link">Cari teknologi atau judul proyek</label>
+            <input
+              id="project-search"
+              type="search"
+              class="search-input"
+              placeholder="Cari stack: React, TypeScript, MySQL, Figma..."
+              aria-label="Cari proyek berdasarkan kata kunci atau teknologi"
+            />
+          </div>
+
+          <div id="projects-grid" class="cards-grid"></div>
+
+          <div class="workbench-strip" aria-label="Akses cepat demo interaktif">
+            <div class="workbench-tile">
+              <h4>Demo 1: Kalkulator Ranking BWM-SAW</h4>
+              <p>Ubah bobot ekonomi, kondisi rumah, &amp; tanggungan untuk menguji perangkingan SAW langsung.</p>
+              <button type="button" class="btn btn-secondary btn-sm" data-open-demo="spk-bansos">Buka Simulator SPK</button>
+            </div>
+            <div class="workbench-tile">
+              <h4>Demo 2: Kasir PWA + Simulator HPP</h4>
+              <p>Hitung omset, modal HPP, laba bersih &amp; jelajahi galeri dashboard POS Admin/Kasir.</p>
+              <button type="button" class="btn btn-secondary btn-sm" data-open-demo="pos-kasir">Buka Simulator POS</button>
+            </div>
+            <div class="workbench-tile">
+              <h4>Demo 3: 3D Phone Mockup 50+ Layar Figma</h4>
+              <p>Geser layar demi layar aplikasi Staycation Booking &amp; Driver Map Routing Surabaya.</p>
+              <button type="button" class="btn btn-secondary btn-sm" data-open-demo="uiux-mobile">Buka Mockup UI/UX</button>
+            </div>
+          </div>
+
+          <div id="github-live-section" class="github-live-box is-hidden" aria-label="Repositori GitHub Live">
+            <div class="section-head">
+              <div>
+                <h3 id="github-live-heading">Repositori GitHub Terbaru (Sinkron Otomatis)</h3>
+                <p id="github-live-sub" class="section-lead">Terhubung langsung ke profil GitHub @AdamZuhruf.</p>
+              </div>
+            </div>
+            <div id="github-live-grid" class="skills-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pengalaman" class="section section-alt" aria-labelledby="pengalaman-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="pengalaman-title" class="section-title">Rekam Jejak Pengalaman, Pendidikan &amp; Transkrip Celerates</h2>
+              <p class="section-lead">
+                Menggabungkan magang industri bersertifikat resmi, pengalaman membangun sistem, dan catatan nilai terverifikasi.
+              </p>
+            </div>
+          </div>
+
+          <div class="split-grid">
+            <div id="timeline-list" class="timeline-list"></div>
+
+            <aside class="transcript-card" aria-label="Transkrip 6 Modul Celerates 900 Jam">
+              <h3>Capaian Celerates CAMP Batch 2 (900 Jam)</h3>
+              <p class="project-sub">Nilai Akhir Program: 89.34 (Predikat A) &bull; MSIB Batch 8</p>
+              <div id="module-list" class="module-list"></div>
+            </aside>
+          </div>
+
+          <div class="skills-block">
+            <h3>Matriks Keahlian Teknis &amp; Kompetensi Terverifikasi</h3>
+            <p class="section-lead">
+              Setiap keahlian terikat langsung pada bukti proyek produksi, sertifikasi industri, atau transkrip nilai resmi UNESA.
+            </p>
+            <div id="skills-grid" class="skills-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sertifikasi" class="section" aria-labelledby="sertifikasi-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="sertifikasi-title" class="section-title">Sertifikasi Resmi &amp; Penghargaan Terkurasi</h2>
+              <p class="section-lead">
+                Klik tombol "Perbesar Sertifikat" pada kartu mana saja untuk memeriksa nomor surat, nilai, serta tanda tangan penerbit resmi.
+              </p>
+            </div>
+          </div>
+          <div id="certs-grid" class="certs-grid"></div>
+        </div>
+      </section>
+
+      <section id="koleksi" class="section is-hidden" aria-labelledby="koleksi-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="koleksi-title" class="section-title">Koleksi Folder, Berkas &amp; Karya Tambahan</h2>
+              <p class="section-lead">
+                Arsip proyek, demo, sertifikat tambahan, dan kumpulan berkas terkurasi yang dikelola melalui Panel CMS Pemilik.
+              </p>
+            </div>
+          </div>
+          <div id="folders-grid" class="cards-grid"></div>
+        </div>
+      </section>
+
+      <section id="sosial" class="section section-alt" aria-labelledby="sosial-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="sosial-title" class="section-title">Ekosistem &amp; Media Sosial Resmi (9 Platform)</h2>
+              <p class="section-lead">
+                Terhubung langsung melalui YouTube, X, Threads, Instagram, LinkedIn, TikTok, Telegram, WhatsApp Bisnis/Saluran (privasi nomor pribadi terlindungi), dan Discord.
+              </p>
+            </div>
+          </div>
+          <div id="social-grid" class="social-grid"></div>
+          <div id="social-copy-feedback" class="form-feedback" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="kontak" class="section" aria-labelledby="kontak-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2 id="kontak-title" class="section-title">Dokumen Tersinkronisasi, CV Live &amp; Kontak Resmi</h2>
+              <p class="section-lead">
+                Seluruh proyek, pengalaman kerja, keahlian, sertifikat, maupun koleksi arsip yang ditambahkan melalui CMS otomatis tersinkronisasi ke halaman CV dan dokumen Word/PDF siap unduh.
+              </p>
+            </div>
+          </div>
+
+          <div class="contact-grid">
+            <div class="panel-box">
+              <h3>Unduhan &amp; Tautan Resmi</h3>
+              <p class="project-summary">
+                Domisili: Sidoarjo, Jawa Timur, Indonesia &middot; Terbuka untuk peran Full-Time, Kontrak, dan Remote IT (Web/Full-Stack Developer, UI/UX Designer, QA, Business/Data Support).
+              </p>
+              <div class="link-pills">
+                <a href="./cv.html" class="btn btn-primary btn-sm">
+                  Buka &amp; Cetak CV Live (PDF A4)
+                </a>
+                <a
+                  href="./api/export/portfolio.docx"
+                  data-live-docx="portfolio"
+                  class="btn btn-secondary btn-sm live-docx-btn"
+                >
+                  Unduh Portofolio Word (.docx)
+                </a>
+                <a
+                  href="./api/export/cv.docx"
+                  data-live-docx="cv"
+                  class="btn btn-secondary btn-sm live-docx-btn"
+                >
+                  Unduh CV Word (.docx)
+                </a>
+                <a
+                  id="github-profile-btn"
+                  href="https://github.com/AdamZuhruf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-secondary btn-sm"
+                >
+                  GitHub (18 Repo)
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/adamzuhruf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-secondary btn-sm"
+                >
+                  LinkedIn
+                </a>
+                <button type="button" id="copy-email-btn" class="btn btn-secondary btn-sm">Salin Email</button>
+              </div>
+            </div>
+
+            <div class="panel-box">
+              <h3>Kirim Pesan Rekrutmen / Kolaborasi</h3>
+              <form id="contact-form" class="contact-form" novalidate>
+                <div class="form-field">
+                  <label for="sender-name">Nama Anda</label>
+                  <input id="sender-name" type="text" required placeholder="Nama HRD / Tim Perekrut" />
+                </div>
+                <div class="form-field">
+                  <label for="sender-org">Perusahaan / Instansi (Opsional)</label>
+                  <input id="sender-org" type="text" placeholder="PT / Startup / Organisasi" />
+                </div>
+                <div class="form-field">
+                  <label for="sender-msg">Pesan</label>
+                  <textarea id="sender-msg" rows="3" required placeholder="Informasi lowongan, jadwal interview, atau proyek..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Buka Draft Email ke adamzuhrufanandaf@gmail.com</button>
+                <div id="contact-feedback" class="form-feedback" aria-live="polite"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Project Interactive Modal -->
+    <div id="project-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="project-modal-title">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="project-modal-title">Detail Karya</h2>
+          <button type="button" id="close-project-modal" class="close-btn" aria-label="Tutup jendela detail proyek">&times;</button>
+        </div>
+        <div id="project-modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Certificate Zoom Lightbox -->
+    <div id="cert-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cert-modal-title">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="cert-modal-title">Pratinjau Sertifikat</h2>
+          <button type="button" id="close-cert-modal" class="close-btn" aria-label="Tutup pratinjau sertifikat">&times;</button>
+        </div>
+        <p id="cert-modal-meta" class="project-sub"></p>
+        <img id="cert-modal-img" class="cert-zoom-img" src="./assets/certs/celerates-graduation.jpg" alt="Pratinjau sertifikat" />
+      </div>
+    </div>
+
+    <!-- Folder & File Vault Lightbox -->
+    <div id="folder-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="folder-modal-title">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="folder-modal-title">Isi Folder &amp; Berkas</h2>
+          <button type="button" id="close-folder-modal" class="close-btn" aria-label="Tutup daftar isi folder">&times;</button>
+        </div>
+        <div id="folder-modal-body"></div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <span>&copy; 2026 Adam Zuhruf Ananda Farendra &middot; UNESA | Indonesia &middot; Siap Kerja Penuh Waktu / Remote</span>
+        <span>https://portofolio-adam-zuhruf.up.railway.app &bull; github.com/AdamZuhruf</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./scripts/main.js?v=4.0"></script>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+/* ============================================================================
+ * Design Tokens — Adam Zuhruf Portfolio (Responsive Fluid Multi-Device + 3D Hero)
+ * Standar kontras WCAG AA (>= 4.5:1 teks normal) di HP, Tablet & Laptop/Desktop
+ * ============================================================================ */
+
+:root {
+  --color-primary: #0F172A;
+  --color-primary-hover: #1E293B;
+  --color-secondary: #0369A1;
+  --color-accent: #0F766E;
+  --color-glow: #38BDF8;
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1F5F9;
+  --color-hero-bg: #090D16;
+  --color-hero-surface: #111827;
+  --color-text: #0F172A;
+  --color-text-muted: #475569;
+  --color-on-primary: #FFFFFF;
+  --color-border: #CBD5E1;
+  --color-success: #15803D;
+  --color-warning: #B45309;
+  --color-danger: #B91C1C;
+
+  --font-display: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  --text-base: clamp(15px, 0.92rem + 0.16vw, 17px);
+  --text-h1: clamp(1.55rem, 1.15rem + 2.2vw, 3.05rem);
+  --text-h2: clamp(1.25rem, 1.02rem + 1.1vw, 2.05rem);
+  --leading-body: 1.65;
+  --heading-weight: 700;
+
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --container-max: 1240px;
+  --space-section: clamp(2.25rem, 4.5vw, 4.75rem);
+  --shadow-card: 0 2px 6px rgba(15, 23, 42, 0.06), 0 12px 32px rgba(15, 23, 42, 0.06);
+  --touch-target: 44px;
+}
+
+@media (min-width: 1440px) {
+  :root {
+    --container-max: 1340px;
+    --text-base: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --radius-lg: 14px;
+    --space-section: 2rem;
+  }
+}

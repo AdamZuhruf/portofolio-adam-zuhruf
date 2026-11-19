@@ -1,0 +1,28 @@
+{
+  "name": "portofolio-adam-zuhruf",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "NODE_ENV=development node server.mjs",
+    "check:syntax": "node --check server.mjs && node --check server/config.mjs && node --check server/db.mjs && node --check server/pqcCrypto.mjs && node --check server/aiDefenseShield.mjs && node --check server/fileSecurity.mjs && node --check server/documentExport.mjs && node --check server/githubSync.mjs && node --check server/liveSync.mjs && node --check server/adminAuth.mjs && node --check server/securityShield.mjs && node --check server/routes.mjs && node --check scripts/main.js && node --check scripts/admin.js && node --check scripts/cv.js && node --check scripts/hero-3d.js && node --check data/portfolio-data.js",
+    "guard:security": "node tools/security-privacy-guard.mjs",
+    "test": "node tools/security-test.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@fastify/compress": "^9.3.0",
+    "@fastify/cors": "^11.4.3",
+    "@fastify/helmet": "^13.2.0",
+    "@fastify/rate-limit": "^11.2.2",
+    "@fastify/static": "^10.1.11",
+    "@noble/post-quantum": "^0.7.1",
+    "docx": "^9.16.0",
+    "fastify": "^5.12.8",
+    "pg": "^8.23.1",
+    "zod": "^4.6.7"
+  }
+}

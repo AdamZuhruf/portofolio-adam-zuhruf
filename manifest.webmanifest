@@ -1,0 +1,16 @@
+{
+  "name": "Adam Zuhruf | Creative Technologist — Portofolio",
+  "short_name": "Adam Zuhruf",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
+  "description": "Portofolio 3D Interaktif & Studi Kasus Full-Stack Web, UI/UX Figma, serta POS Karya Adam Zuhruf Ananda Farendra.",
+  "icons": [
+    {
+      "src": "./assets/portrait-studio-circle.png",
+      "sizes": "600x600",
+      "type": "image/png"
+    }
+  ]
+}

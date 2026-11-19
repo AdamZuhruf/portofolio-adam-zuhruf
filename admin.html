@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel CMS Portofolio — Adam Zuhruf</title>
+    <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.0" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.0" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-bar">
+        <a href="./index.html" class="brand">
+          <span class="brand-mark" aria-hidden="true">AZ</span>
+          <span>Panel CMS Portofolio (Tanpa Koding)</span>
+        </a>
+        <div class="cta-group">
+          <a href="./index.html" class="btn btn-secondary btn-sm">Lihat Website Publik</a>
+          <a href="./cv.html" class="btn btn-secondary btn-sm">Lihat CV &amp; Portofolio Live</a>
+          <button type="button" id="logout-btn" class="btn btn-secondary btn-sm is-hidden">Keluar</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="section">
+      <div class="container">
+        <div class="admin-toolbar">
+          <div>
+            <h1 class="section-title">Kelola Proyek, Demo, Sertifikat, File &amp; Folder Karya</h1>
+            <p class="section-lead" id="db-engine-banner">Memeriksa status database &amp; sesi admin...</p>
+          </div>
+        </div>
+
+        <section id="login-card" class="panel-box" aria-labelledby="login-title">
+          <h2 id="login-title">Masuk sebagai Pemilik Portofolio</h2>
+          <p class="project-summary">
+            Masukkan <strong>ADMIN_API_KEY</strong> dari Railway Variables untuk mengaktifkan unggahan file/folder dan pengelolaan konten tanpa koding.
+          </p>
+          <form id="login-form" class="contact-form">
+            <div class="form-field">
+              <label for="admin-key-input">Kunci Akses Admin (<code>ADMIN_API_KEY</code>)</label>
+              <input id="admin-key-input" type="password" required autocomplete="current-password" placeholder="Minimal 24 karakter dari Railway Variables" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Masuk ke Panel CMS</button>
+            <div id="login-feedback" class="form-feedback" aria-live="polite"></div>
+          </form>
+        </section>
+
+        <section id="cms-workspace" class="is-hidden" aria-label="Ruang kerja CMS portofolio">
+          <div id="cms-feedback" class="form-feedback" aria-live="polite"></div>
+
+          <div class="contact-grid">
+            <!-- 1. Universal File / Folder Card Creator -->
+            <div class="panel-box">
+              <h2>Tambah Kartu File atau Folder (Bebas Topik)</h2>
+              <p class="project-summary">
+                Cocok untuk menambahkan folder proyek, kumpulan demo, sertifikat tambahan, CV/dokumen, desain, atau arsip berkas apa pun (PNG, JPG, WebP, PDF, DOCX, XLSX, PPTX, ZIP, TXT, MD; maks 6 MB/file). Setiap file diperiksa magic-bytes &amp; disegel SHA3-256 + ML-DSA-65.
+              </p>
+              <form id="card-form" class="contact-form">
+                <div class="form-field">
+                  <label for="c-id">ID Kartu (opsional, otomatis dibuat jika kosong)</label>
+                  <input id="c-id" type="text" placeholder="misal: folder-desain-2026" />
+                </div>
+                <div class="form-field">
+                  <label for="c-kind">Kategori / Jenis Kartu</label>
+                  <select id="c-kind">
+                    <option value="folder">Folder &amp; Arsip Karya</option>
+                    <option value="project">Proyek</option>
+                    <option value="demo">Demo Live</option>
+                    <option value="certificate">Sertifikat / Penghargaan</option>
+                    <option value="document">Dokumen / CV / PDF</option>
+                    <option value="design">Desain UI/UX / Media</option>
+                    <option value="other">Lainnya</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="c-title">Judul Kartu / Nama Folder</label>
+                  <input id="c-title" type="text" required placeholder="Contoh: Kumpulan Berkas Aplikasi Kasir & UI Figma" />
+                </div>
+                <div class="form-field">
+                  <label for="c-summary">Deskripsi Singkat</label>
+                  <textarea id="c-summary" rows="2" required placeholder="Jelaskan isi file atau folder yang ditampilkan..."></textarea>
+                </div>
+                <div class="form-field">
+                  <label for="c-url">Tautan Live / Demo / Eksternal (Opsional)</label>
+                  <input id="c-url" type="url" placeholder="https://..." />
+                </div>
+                <div class="form-field">
+                  <label for="c-cover-file">Unggah Sampul Gambar (Opsional, PNG/JPG/WebP)</label>
+                  <input id="c-cover-file" type="file" accept=".png,.jpg,.jpeg,.webp" />
+                  <small id="c-cover-status" class="section-lead"></small>
+                </div>
+                <div class="form-field">
+                  <label for="c-files-input">Pilih 1 atau Banyak File sekaligus</label>
+                  <input id="c-files-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.xlsx,.pptx,.zip,.txt,.md" />
+                </div>
+                <div class="form-field">
+                  <label for="c-folder-input">Atau Pilih Langsung 1 Folder Utuh dari Komputer</label>
+                  <input id="c-folder-input" type="file" webkitdirectory multiple />
+                </div>
+                <div id="c-upload-queue" class="upload-queue"></div>
+                <button type="submit" class="btn btn-primary btn-sm">Simpan Kartu File / Folder ke Database</button>
+              </form>
+            </div>
+
+            <!-- 2. Project & Demo Manager with Thumbnail + File/Folder Attachments -->
+            <div class="panel-box">
+              <h2>Tambah / Edit Proyek &amp; Demo</h2>
+              <form id="project-form" class="contact-form">
+                <div class="form-field">
+                  <label for="p-id">ID Proyek (opsional, otomatis jika kosong)</label>
+                  <input id="p-id" type="text" placeholder="misal: sistem-crm-2026" />
+                </div>
+                <div class="form-field">
+                  <label for="p-cat">Kategori</label>
+                  <select id="p-cat">
+                    <option value="fullstack">Full-Stack &amp; Sistem</option>
+                    <option value="pos">POS &amp; Bisnis</option>
+                    <option value="uiux">UI/UX &amp; Mobile</option>
+                    <option value="demo">Demo Interaktif</option>
+                    <option value="other">Karya Lainnya</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="p-year">Tahun</label>
+                  <input id="p-year" type="text" required value="2026" />
+                </div>
+                <div class="form-field">
+                  <label for="p-title">Judul Proyek / Demo</label>
+                  <input id="p-title" type="text" required placeholder="Nama proyek atau demo..." />
+                </div>
+                <div class="form-field">
+                  <label for="p-subtitle">Subjudul</label>
+                  <input id="p-subtitle" type="text" required placeholder="Peran / ringkasan 1 baris" />
+                </div>
+                <div class="form-field">
+                  <label for="p-stack">Teknologi (pisahkan koma)</label>
+                  <input id="p-stack" type="text" required placeholder="TypeScript, Fastify, PostgreSQL" />
+                </div>
+                <div class="form-field">
+                  <label for="p-summary">Deskripsi Proyek</label>
+                  <textarea id="p-summary" rows="3" required></textarea>
+                </div>
+                <div class="form-field">
+                  <label for="p-repo">Link GitHub / URL Demo Live (Opsional)</label>
+                  <input id="p-repo" type="url" placeholder="https://..." />
+                </div>
+                <div class="form-field">
+                  <label for="p-image-file">Unggah Gambar Thumbnail Proyek (Opsional)</label>
+                  <input id="p-image-file" type="file" accept=".png,.jpg,.jpeg,.webp" />
+                  <small id="p-image-status" class="section-lead"></small>
+                </div>
+                <div class="form-field">
+                  <label for="p-attach-files">Lampirkan File atau Folder Proyek (Opsional)</label>
+                  <input id="p-attach-files" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.docx,.xlsx,.pptx,.zip,.txt,.md" />
+                </div>
+                <div class="form-field">
+                  <label for="p-attach-folder">Atau Lampirkan 1 Folder Proyek Utuh (Opsional)</label>
+                  <input id="p-attach-folder" type="file" webkitdirectory multiple />
+                </div>
+                <div id="p-upload-queue" class="upload-queue"></div>
+                <button type="submit" class="btn btn-primary btn-sm">Simpan Proyek ke Database</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="skills-block contact-grid">
+            <!-- 3. Certificate Upload & Manager -->
+            <div class="panel-box">
+              <h2>Tambah / Edit Sertifikat</h2>
+              <form id="cert-form" class="contact-form">
+                <div class="form-field">
+                  <label for="cert-id">ID Sertifikat (opsional, otomatis jika kosong)</label>
+                  <input id="cert-id" type="text" placeholder="misal: cert-aws-2026" />
+                </div>
+                <div class="form-field">
+                  <label for="cert-badge">Label Badge</label>
+                  <input id="cert-badge" type="text" required placeholder="Sertifikat / Kompetensi / Juara" />
+                </div>
+                <div class="form-field">
+                  <label for="cert-title">Judul Sertifikat</label>
+                  <input id="cert-title" type="text" required placeholder="Nama sertifikat resmi..." />
+                </div>
+                <div class="form-field">
+                  <label for="cert-issuer">Instansi Penerbit</label>
+                  <input id="cert-issuer" type="text" required placeholder="Nama lembaga / penyelenggara..." />
+                </div>
+                <div class="form-field">
+                  <label for="cert-date">Tanggal Terbit</label>
+                  <input id="cert-date" type="text" required placeholder="19 Nov 2026" />
+                </div>
+                <div class="form-field">
+                  <label for="cert-file-input">Unggah Foto / Scan Sertifikat (PNG, JPG, WebP, atau PDF)</label>
+                  <input id="cert-file-input" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf" />
+                  <small id="cert-file-status" class="section-lead"></small>
+                </div>
+                <div class="form-field">
+                  <label for="cert-image-url">Atau URL / Path Gambar Sertifikat</label>
+                  <input id="cert-image-url" type="text" required placeholder="./api/assets/... (terisi otomatis setelah upload)" />
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Simpan Sertifikat ke Database</button>
+              </form>
+            </div>
+
+            <!-- 4. Experience & Skill Forms -->
+            <div class="panel-box">
+              <h2>Tambah Pengalaman Kerja &amp; Skill</h2>
+              <form id="exp-form" class="contact-form">
+                <div class="form-field">
+                  <label for="e-id">ID Pengalaman (opsional, otomatis jika kosong)</label>
+                  <input id="e-id" type="text" placeholder="misal: exp-startup-2026" />
+                </div>
+                <div class="form-field">
+                  <label for="e-period">Periode</label>
+                  <input id="e-period" type="text" required placeholder="Nov 2026 – Sekarang" />
+                </div>
+                <div class="form-field">
+                  <label for="e-role">Peran &amp; Perusahaan</label>
+                  <input id="e-role" type="text" required placeholder="Full-Stack Developer — PT Contoh" />
+                </div>
+                <div class="form-field">
+                  <label for="e-detail">Pencapaian &amp; Teknologi</label>
+                  <textarea id="e-detail" rows="2" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Simpan Pengalaman Kerja</button>
+              </form>
+
+              <hr />
+
+              <form id="skill-form" class="contact-form">
+                <div class="form-field">
+                  <label for="s-id">ID Skill (opsional, otomatis jika kosong)</label>
+                  <input id="s-id" type="text" placeholder="misal: skill-devops" />
+                </div>
+                <div class="form-field">
+                  <label for="s-cat">Kategori Skill</label>
+                  <input id="s-cat" type="text" required placeholder="Cloud / Backend / AI" />
+                </div>
+                <div class="form-field">
+                  <label for="s-name">Nama Keahlian / Stack</label>
+                  <input id="s-name" type="text" required placeholder="Kubernetes, Terraform, GitHub Actions" />
+                </div>
+                <div class="form-field">
+                  <label for="s-level">Tingkat Terukur</label>
+                  <input id="s-level" type="text" required value="Produksi" />
+                </div>
+                <div class="form-field">
+                  <label for="s-evidence">Bukti Proyek / Sertifikat</label>
+                  <input id="s-evidence" type="text" required placeholder="Nama proyek nyata atau sertifikasi resmi" />
+                </div>
+                <button type="submit" class="btn btn-secondary btn-sm">Simpan Skill</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="skills-block panel-box">
+            <h2>Semua Item Portofolio Live (Proyek, Folder/File Card, Sertifikat, Pengalaman &amp; Skill)</h2>
+            <div id="cms-items-list"></div>
+          </div>
+
+          <div class="skills-block contact-grid">
+            <div class="panel-box">
+              <h2>Pesan Rekrutmen Masuk (Terenkripsi AES-256-GCM)</h2>
+              <div id="inquiries-list"></div>
+            </div>
+            <div class="panel-box">
+              <h2>Log Deteksi Keamanan &amp; Upload Shield</h2>
+              <div id="audit-list"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="./scripts/admin.js?v=4.0"></script>
+  </body>
+</html>

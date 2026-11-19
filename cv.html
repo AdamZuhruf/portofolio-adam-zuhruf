@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV &amp; Portofolio Live (Tersinkronisasi) — Adam Zuhruf Ananda Farendra</title>
+    <meta
+      name="description"
+      content="Curriculum Vitae dan Ringkasan Portofolio resmi Adam Zuhruf Ananda Farendra yang selalu tersinkronisasi secara real-time dengan basis data proyek, pengalaman, skill, sertifikat, dan arsip karya."
+    />
+    <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.0" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.0" />
+  </head>
+  <body>
+    <header class="site-header cv-no-print">
+      <div class="container nav-bar">
+        <a href="./index.html" class="brand">
+          <span class="brand-mark" aria-hidden="true">AZ</span>
+          <span>CV &amp; Portofolio Tersinkronisasi</span>
+        </a>
+        <div class="cta-group">
+          <a href="./index.html" class="btn btn-secondary btn-sm">Kembali ke Web Utama</a>
+          <button type="button" id="btn-mode-cv" class="btn btn-primary btn-sm">Tampilan CV</button>
+          <button type="button" id="btn-mode-portfolio" class="btn btn-secondary btn-sm">Tampilan Portofolio</button>
+          <button type="button" id="btn-print-pdf" class="btn btn-primary btn-sm">Cetak / Simpan PDF (A4)</button>
+          <a id="btn-dl-docx" href="./api/export/cv.docx" class="btn btn-secondary btn-sm">Unduh Word (.docx)</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="section">
+      <div class="container cv-sheet" id="cv-sheet">
+        <div class="cv-head">
+          <div>
+            <h1 id="cv-name">Adam Zuhruf Ananda Farendra</h1>
+            <p id="cv-headline" class="project-sub">Full-Stack Web &amp; Application Developer &middot; UI/UX Designer</p>
+            <p id="cv-meta" class="project-summary"></p>
+          </div>
+          <img
+            src="./assets/portrait-studio-circle.png"
+            alt="Foto formal Adam Zuhruf Ananda Farendra"
+            class="cv-avatar"
+          />
+        </div>
+
+        <section class="cv-block">
+          <h2>Ringkasan Profesional</h2>
+          <p id="cv-summary"></p>
+        </section>
+
+        <section class="cv-block">
+          <h2>Pengalaman Kerja &amp; Pendidikan</h2>
+          <div id="cv-timeline"></div>
+        </section>
+
+        <section class="cv-block">
+          <h2>Matriks Keahlian Teknis</h2>
+          <div id="cv-skills"></div>
+        </section>
+
+        <section class="cv-block">
+          <h2>Proyek, Sistem &amp; Studi Kasus</h2>
+          <div id="cv-projects"></div>
+        </section>
+
+        <section id="cv-showcase-wrap" class="cv-block is-hidden">
+          <h2>Koleksi File &amp; Folder Karya Tambahan</h2>
+          <div id="cv-showcase"></div>
+        </section>
+
+        <section class="cv-block">
+          <h2>Sertifikasi &amp; Penghargaan Resmi</h2>
+          <div id="cv-certs"></div>
+        </section>
+
+        <section class="cv-block">
+          <h2>Akses Publik &amp; 9 Kanal Media Sosial Resmi</h2>
+          <div id="cv-socials"></div>
+        </section>
+
+        <p id="cv-sync-stamp" class="cv-sync-note"></p>
+      </div>
+    </main>
+
+    <script type="module" src="./scripts/cv.js?v=4.0"></script>
+  </body>
+</html>

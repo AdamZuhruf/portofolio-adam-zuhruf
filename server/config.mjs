@@ -1,0 +1,65 @@
+import { z } from 'zod';
+
+const emptyToUndefined = (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v);
+
+const EnvSchema = z.object({
+  NODE_ENV: z.preprocess(emptyToUndefined, z.enum(['development', 'production', 'test']).default('production')),
+  PORT: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).max(65535).default(3000)),
+  HOST: z.preprocess(emptyToUndefined, z.string().trim().min(1).default(process.platform === 'linux' ? '::' : '0.0.0.0')),
+  PUBLIC_SITE_URL: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().url().default('https://portofolio-adam-zuhruf.up.railway.app')
+  ),
+  PUBLIC_CONTACT_EMAIL: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().email().default('adamzuhrufanandaf@gmail.com')
+  ),
+  DATABASE_URL: z.string().trim().optional().default(''),
+  SQLITE_PATH: z.preprocess(emptyToUndefined, z.string().trim().default('./storage/portfolio.sqlite')),
+  ADMIN_API_KEY: z.string().trim().optional().default(''),
+  ADMIN_SESSION_SECRET: z.string().trim().optional().default(''),
+  PQC_MASTER_SEED: z.string().trim().optional().default(''),
+  GITHUB_USERNAME: z.preprocess(emptyToUndefined, z.string().trim().min(1).max(60).default('AdamZuhruf')),
+  GITHUB_TOKEN: z.string().trim().optional().default(''),
+  GITHUB_WEBHOOK_SECRET: z.string().trim().optional().default(''),
+  RATE_LIMIT_MAX: z.preprocess(emptyToUndefined, z.coerce.number().int().min(20).max(2000).default(180)),
+  ALLOWED_ORIGINS: z.string().default('')
+});
+
+const parsed = EnvSchema.safeParse(process.env);
+if (!parsed.success) {
+  console.error('[config] Environment configuration error:', parsed.error.flatten().fieldErrors);
+  process.exit(1);
+}
+
+const rawEnv = parsed.data;
+const customOrigins = rawEnv.ALLOWED_ORIGINS.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+export const config = {
+  nodeEnv: rawEnv.NODE_ENV,
+  isProd: rawEnv.NODE_ENV === 'production',
+  port: rawEnv.PORT,
+  hasExplicitPort: Boolean(process.env.PORT && String(process.env.PORT).trim() !== ''),
+  host: rawEnv.HOST,
+  publicSiteUrl: rawEnv.PUBLIC_SITE_URL.replace(/\/+$/, ''),
+  publicContactEmail: rawEnv.PUBLIC_CONTACT_EMAIL,
+  databaseUrl: rawEnv.DATABASE_URL,
+  sqlitePath: rawEnv.SQLITE_PATH,
+  adminApiKey: rawEnv.ADMIN_API_KEY,
+  adminSessionSecret: rawEnv.ADMIN_SESSION_SECRET,
+  pqcMasterSeed: rawEnv.PQC_MASTER_SEED,
+  githubUsername: rawEnv.GITHUB_USERNAME,
+  githubToken: rawEnv.GITHUB_TOKEN,
+  githubWebhookSecret: rawEnv.GITHUB_WEBHOOK_SECRET,
+  rateLimitMax: rawEnv.RATE_LIMIT_MAX,
+  allowedOrigins: new Set([
+    'https://adamzuhruf.github.io',
+    'https://portofolio-adam-zuhruf.up.railway.app',
+    rawEnv.PUBLIC_SITE_URL.replace(/\/+$/, ''),
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
+    ...customOrigins
+  ])
+};
