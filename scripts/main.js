@@ -1121,7 +1121,7 @@ function ensureOwnerPortalModal() {
   const feedback = el('div', 'form-feedback');
   feedback.setAttribute('aria-live', 'polite');
 
-  const submitBtn = el('button', 'btn btn-primary btn-sm', 'Masuk & Buka Panel CMS');
+  const submitBtn = el('button', 'btn btn-primary btn-sm', 'Masuk');
   submitBtn.type = 'submit';
 
   form.appendChild(field);

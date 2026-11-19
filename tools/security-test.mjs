@@ -433,6 +433,7 @@ async function runTests() {
     const mainJsSrc = fs.readFileSync(path.resolve(import.meta.dirname, '..', 'scripts', 'main.js'), 'utf8');
     assert.ok(!mainJsSrc.includes('ADMIN_API_KEY'), 'main.js modal must not display ADMIN_API_KEY label');
     assert.ok(!/kunci akses pemilik/i.test(mainJsSrc), 'main.js modal must use Kunci Akses');
+    assert.ok(!mainJsSrc.includes('Masuk & Buka Panel CMS'), 'main.js modal button must say Masuk');
 
     const { config: rbacCfg } = await import('../server/config.mjs');
     const prevAdminKey = rbacCfg.adminApiKey;
