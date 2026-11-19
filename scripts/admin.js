@@ -196,10 +196,10 @@ async function checkSecurityBanner() {
     const dbLabel = s.database?.engine ? s.database.engine.toUpperCase() : 'UNKNOWN';
     const persist = s.database?.persistent ? 'Persisten' : 'Sementara';
     const configured = s.adminAuth === 'enabled-fail-closed';
-    const authState = configured ? 'Aktif (Fail-Closed + ML-DSA-65)' : 'Belum Set ADMIN_API_KEY di Railway Variables';
+    const authState = configured ? 'Aktif (Pemilik Terkunci Aman)' : 'Kunci Akses Belum Dikonfigurasi';
     dbBanner.textContent = `Database: ${dbLabel} (${persist}, ${s.database?.tablesCount || 9} tabel) · Autentikasi: ${authState}`;
     if (!configured) {
-      loginFeedback.textContent = 'Mode Fail-Closed: Tambahkan ADMIN_API_KEY (min 24 karakter) di Railway Variables untuk membuka panel CMS.';
+      loginFeedback.textContent = 'Panel terkunci: konfigurasi kunci akses (min 24 karakter) di environment server untuk membuka CMS.';
     }
     return configured;
   } catch {

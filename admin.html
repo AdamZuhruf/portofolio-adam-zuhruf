@@ -6,8 +6,8 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Panel CMS Portofolio — Adam Zuhruf</title>
     <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
-    <link rel="stylesheet" href="./styles/tokens.css?v=4.2" />
-    <link rel="stylesheet" href="./styles/main.css?v=4.2" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.3" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.3" />
   </head>
   <body>
     <header class="site-header">
@@ -36,12 +36,12 @@
         <section id="login-card" class="panel-box" aria-labelledby="login-title">
           <h2 id="login-title">Masuk sebagai Pemilik Portofolio</h2>
           <p class="project-summary">
-            Masukkan <strong>ADMIN_API_KEY</strong> dari Railway Variables untuk mengaktifkan unggahan file/folder dan pengelolaan konten tanpa koding.
+            Masukkan kunci akses Anda untuk mengaktifkan unggahan file/folder dan pengelolaan konten tanpa koding.
           </p>
           <form id="login-form" class="contact-form">
             <div class="form-field">
-              <label for="admin-key-input">Kunci Akses Admin (<code>ADMIN_API_KEY</code>)</label>
-              <input id="admin-key-input" type="password" required autocomplete="current-password" placeholder="Minimal 24 karakter dari Railway Variables" />
+              <label for="admin-key-input">Kunci Akses</label>
+              <input id="admin-key-input" type="password" required autocomplete="current-password" placeholder="Masukkan kunci akses" />
             </div>
             <button type="submit" class="btn btn-primary btn-sm">Masuk ke Panel CMS</button>
             <div id="login-feedback" class="form-feedback" aria-live="polite"></div>
@@ -286,6 +286,6 @@
       </div>
     </main>
 
-    <script type="module" src="./scripts/admin.js?v=4.2"></script>
+    <script type="module" src="./scripts/admin.js?v=4.3"></script>
   </body>
 </html>

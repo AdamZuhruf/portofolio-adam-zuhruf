@@ -428,6 +428,11 @@ async function runTests() {
     const footerHtml = home.body.slice(home.body.indexOf('<footer'), home.body.indexOf('</footer>') + 9);
     assert.ok(!footerHtml.includes('portofolio-adam-zuhruf.up.railway.app'), 'Footer must not display raw railway URL');
     assert.ok(!home.body.includes('admin.html'), 'Public index.html must not expose admin.html link');
+    assert.ok(!adminPage.body.includes('ADMIN_API_KEY'), 'Admin UI must not display ADMIN_API_KEY label');
+    assert.ok(adminPage.body.includes('>Kunci Akses<'), 'Admin login label should say Kunci Akses');
+    const mainJsSrc = fs.readFileSync(path.resolve(import.meta.dirname, '..', 'scripts', 'main.js'), 'utf8');
+    assert.ok(!mainJsSrc.includes('ADMIN_API_KEY'), 'main.js modal must not display ADMIN_API_KEY label');
+    assert.ok(!/kunci akses pemilik/i.test(mainJsSrc), 'main.js modal must use Kunci Akses');
 
     const { config: rbacCfg } = await import('../server/config.mjs');
     const prevAdminKey = rbacCfg.adminApiKey;

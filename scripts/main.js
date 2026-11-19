@@ -1107,14 +1107,14 @@ function ensureOwnerPortalModal() {
 
   const form = el('form', 'contact-form');
   const field = el('div', 'form-field');
-  const lbl = el('label', '', 'Kunci Akses Pemilik (ADMIN_API_KEY)');
+  const lbl = el('label', '', 'Kunci Akses');
   lbl.setAttribute('for', 'owner-portal-key');
   const input = document.createElement('input');
   input.id = 'owner-portal-key';
   input.type = 'password';
   input.required = true;
   input.autocomplete = 'current-password';
-  input.placeholder = 'Masukkan kunci akses pemilik';
+  input.placeholder = 'Masukkan kunci akses';
   field.appendChild(lbl);
   field.appendChild(input);
 
@@ -1130,7 +1130,7 @@ function ensureOwnerPortalModal() {
 
   form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
-    feedback.textContent = 'Memverifikasi kunci akses pemilik...';
+    feedback.textContent = 'Memverifikasi kunci akses...';
     try {
       const res = await fetch('./api/admin/login', {
         method: 'POST',
