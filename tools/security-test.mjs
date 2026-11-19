@@ -341,24 +341,25 @@ async function runTests() {
     assert.ok(home.body.includes('id="folder-modal"'), 'Folder modal missing');
     assert.ok(!home.body.includes('./docs/'), 'Static docs/ links should not appear in index.html');
     assert.ok(!home.body.includes('admin.html'), 'Public index.html must not advertise admin URL');
+    assert.ok(!home.body.includes('Buka Draft Email'), 'Submit button text should be Kirim, not Buka Draft Email');
+    assert.ok(home.body.includes('>Kirim<'), 'Contact form should show Kirim button');
+    assert.ok(home.body.includes('id="owner-portal-btn"'), 'Owner CMS access trigger button missing');
+    assert.ok(!home.body.includes('Unduh CV Word'), 'Visitor HTML must not expose CV download button');
+    assert.ok(!home.body.includes('Unduh Portofolio Word'), 'Visitor HTML must not expose Portfolio download button');
     passed++;
 
-    // 16. Live-synced CV & Portfolio export (.docx PKZIP + /cv HTML + static /docs blocked)
+    // 16. View-Only CV/Portfolio Preview + Unconfigured Export Blocked + Static /docs Blocked
     const cvPage = await app.inject({ method: 'GET', url: '/cv', remoteAddress: '10.0.0.36' });
     assert.equal(cvPage.statusCode, 200);
     assert.ok(cvPage.body.includes('cv-sheet'));
+    assert.ok(cvPage.body.includes('id="btn-print-pdf" class="btn btn-primary btn-sm is-hidden"'));
+    assert.ok(cvPage.body.includes('id="btn-dl-docx" href="./api/export/cv.docx" class="btn btn-secondary btn-sm is-hidden"'));
 
-    const cvDocx = await app.inject({ method: 'GET', url: '/api/export/cv.docx', remoteAddress: '10.0.0.36' });
-    assert.equal(cvDocx.statusCode, 200);
-    assert.equal(cvDocx.headers['content-type'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    assert.equal(cvDocx.rawPayload[0], 0x50);
-    assert.equal(cvDocx.rawPayload[1], 0x4b);
-    assert.ok(cvDocx.rawPayload.includes('word/document.xml'));
+    const unauthCvDocx = await app.inject({ method: 'GET', url: '/api/export/cv.docx', remoteAddress: '10.0.0.36' });
+    assert.ok([401, 503].includes(unauthCvDocx.statusCode), 'Visitor must never download CV docx');
 
-    const portDocx = await app.inject({ method: 'GET', url: '/api/export/portfolio.docx', remoteAddress: '10.0.0.36' });
-    assert.equal(portDocx.statusCode, 200);
-    assert.equal(portDocx.rawPayload[0], 0x50);
-    assert.equal(portDocx.rawPayload[1], 0x4b);
+    const unauthPortDocx = await app.inject({ method: 'GET', url: '/api/export/portfolio.docx', remoteAddress: '10.0.0.36' });
+    assert.ok([401, 503].includes(unauthPortDocx.statusCode), 'Visitor must never download Portfolio docx');
 
     const blockedDocs = await app.inject({
       method: 'GET',
@@ -437,15 +438,17 @@ async function runTests() {
       assert.equal(visitorRole.json().role, 'visitor');
       assert.equal(visitorRole.json().authenticated, false);
       assert.equal(visitorRole.json().capabilities.view, true);
-      assert.equal(visitorRole.json().capabilities.download, true);
+      assert.equal(visitorRole.json().capabilities.download, false);
       assert.equal(visitorRole.json().capabilities.contact, true);
       assert.equal(visitorRole.json().capabilities.edit, false);
       assert.equal(visitorRole.json().capabilities.cmsAccess, false);
 
-      // Visitor blocked from all CMS writes and private reads (401)
+      // Visitor blocked from all CMS writes, private reads, AND CV/Portfolio document downloads (401)
       for (const reqSpec of [
         { method: 'GET', url: '/api/admin/inquiries' },
         { method: 'GET', url: '/api/admin/security-logs' },
+        { method: 'GET', url: '/api/export/cv.docx' },
+        { method: 'GET', url: '/api/export/portfolio.docx' },
         { method: 'POST', url: '/api/admin/skills', payload: { id: 'x1', category: 'a', name: 'b', level: 'c', evidence: 'defgh' } },
         { method: 'DELETE', url: '/api/admin/projects/velpar-store' },
         { method: 'POST', url: '/api/admin/assets/upload', payload: { fileName: 'x.txt', dataBase64: 'aGVsbG8=' } }
@@ -475,8 +478,52 @@ async function runTests() {
       assert.equal(ownerRole.statusCode, 200);
       assert.equal(ownerRole.json().role, 'owner');
       assert.equal(ownerRole.json().authenticated, true);
+      assert.equal(ownerRole.json().capabilities.download, true);
       assert.equal(ownerRole.json().capabilities.cmsAccess, true);
       assert.equal(ownerRole.json().capabilities.edit, true);
+
+      // Owner CAN download CV & Portfolio docx + asset ?download=1, while visitors are blocked (401)
+      const ownerCvDocx = await app.inject({
+        method: 'GET',
+        url: '/api/export/cv.docx',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie }
+      });
+      assert.equal(ownerCvDocx.statusCode, 200);
+      assert.equal(ownerCvDocx.rawPayload[0], 0x50);
+      assert.equal(ownerCvDocx.rawPayload[1], 0x4b);
+      assert.ok(ownerCvDocx.rawPayload.includes('word/document.xml'));
+
+      const ownerPortDocx = await app.inject({
+        method: 'GET',
+        url: '/api/export/portfolio.docx',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie }
+      });
+      assert.equal(ownerPortDocx.statusCode, 200);
+      assert.equal(ownerPortDocx.rawPayload[0], 0x50);
+      assert.equal(ownerPortDocx.rawPayload[1], 0x4b);
+
+      const upDoc = await app.inject({
+        method: 'POST',
+        url: '/api/admin/assets/upload',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie },
+        payload: { fileName: 'private-doc.txt', ownerScope: 'folder-card', dataBase64: Buffer.from('Privat').toString('base64') }
+      });
+      assert.equal(upDoc.statusCode, 200);
+      const privId = upDoc.json().asset.assetId;
+
+      const visitorDlAsset = await app.inject({ method: 'GET', url: `/api/assets/${privId}`, remoteAddress: '10.0.0.40' });
+      assert.equal(visitorDlAsset.statusCode, 401);
+
+      const ownerDlAsset = await app.inject({
+        method: 'GET',
+        url: `/api/assets/${privId}?download=1`,
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie }
+      });
+      assert.equal(ownerDlAsset.statusCode, 200);
 
       // Cross-origin CSRF mutation attempt with cookie blocked (403)
       const csrfRes = await app.inject({

@@ -6,8 +6,8 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Panel CMS Portofolio — Adam Zuhruf</title>
     <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
-    <link rel="stylesheet" href="./styles/tokens.css?v=4.1" />
-    <link rel="stylesheet" href="./styles/main.css?v=4.1" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.2" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.2" />
   </head>
   <body>
     <header class="site-header">
@@ -49,6 +49,18 @@
         </section>
 
         <section id="cms-workspace" class="is-hidden" aria-label="Ruang kerja CMS portofolio">
+          <div class="panel-box owner-export-panel">
+            <h2>Unduhan Dokumen Resmi (Eksklusif Pemilik)</h2>
+            <p class="project-summary">
+              Pengunjung publik hanya dapat melihat secara online. Anda sendiri dapat mengunduh CV, Portofolio Word (`.docx`), maupun PDF A4 terbaru di bawah ini.
+            </p>
+            <div class="link-pills">
+              <a href="./api/export/portfolio.docx" class="btn btn-primary btn-sm">Unduh Portofolio Word (.docx)</a>
+              <a href="./api/export/cv.docx" class="btn btn-secondary btn-sm">Unduh CV Word (.docx)</a>
+              <a href="./cv.html" class="btn btn-secondary btn-sm">Buka &amp; Cetak PDF A4 (Mode Pemilik)</a>
+            </div>
+          </div>
+
           <div id="cms-feedback" class="form-feedback" aria-live="polite"></div>
 
           <div class="contact-grid">
@@ -274,6 +286,6 @@
       </div>
     </main>
 
-    <script type="module" src="./scripts/admin.js?v=4.1"></script>
+    <script type="module" src="./scripts/admin.js?v=4.2"></script>
   </body>
 </html>

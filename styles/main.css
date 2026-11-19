@@ -1521,9 +1521,54 @@ progress.score-bar::-webkit-progress-value {
   color: var(--color-text-muted);
 }
 
+.footer-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.owner-entry-btn {
+  appearance: none;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.owner-entry-btn:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #f8fafc;
+}
+
+.owner-export-strip,
+.owner-export-panel {
+  margin-top: 0.85rem;
+}
+
 @media print {
+  body:not(.owner-print-allowed) * {
+    display: none !important;
+  }
+
+  body:not(.owner-print-allowed)::before {
+    content: "Pratinjau portofolio & CV ini hanya tersedia untuk ditinjau secara online. Pengunduhan dan pencetakan dibatasi hanya untuk pemilik.";
+    display: block;
+    padding: 2rem;
+    font-family: sans-serif;
+    font-size: 13pt;
+    color: #0f172a;
+  }
+
   .site-header,
   .owner-dock,
+  .site-footer,
   .cv-no-print,
   .stage-3d-shell,
   .modal-backdrop,

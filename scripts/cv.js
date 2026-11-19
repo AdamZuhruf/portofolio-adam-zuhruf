@@ -141,9 +141,49 @@ function renderDocument() {
   });
   socBox.appendChild(grid);
 
-  const srcText = hasBackendApi && snapshot.engine ? `Tersinkronisasi langsung dari database (${snapshot.engine.toUpperCase()})` : 'Mode Pratinjau Statis (Gunakan tombol Cetak / Simpan PDF A4)';
+  const srcText = isOwnerCvSession
+    ? `Mode Pemilik · Tersinkronisasi dari database (${(snapshot.engine || 'DB').toUpperCase()})`
+    : 'Pratinjau Online (Hanya Lihat — Unduhan & pencetakan dinonaktifkan untuk pengunjung)';
   document.getElementById('cv-sync-stamp').textContent = `${srcText} · Diperbarui: ${new Date().toLocaleDateString('id-ID')}`;
 }
+
+let isOwnerCvSession = false;
+
+async function syncCvOwnerRole() {
+  if (!hasBackendApi) {
+    isOwnerCvSession = false;
+    document.body.classList.remove('owner-print-allowed');
+    btnPrintPdf?.classList.add('is-hidden');
+    btnDlDocx?.classList.add('is-hidden');
+    return;
+  }
+  try {
+    const res = await fetch('./api/auth/role', { cache: 'no-store' });
+    const data = res.ok ? await res.json() : {};
+    isOwnerCvSession = Boolean(data?.authenticated && data?.role === 'owner');
+  } catch {
+    isOwnerCvSession = false;
+  }
+  if (isOwnerCvSession) {
+    document.body.classList.add('owner-print-allowed');
+    btnPrintPdf?.classList.remove('is-hidden');
+    btnDlDocx?.classList.remove('is-hidden');
+  } else {
+    document.body.classList.remove('owner-print-allowed');
+    btnPrintPdf?.classList.add('is-hidden');
+    btnDlDocx?.classList.add('is-hidden');
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (!isOwnerCvSession && (e.ctrlKey || e.metaKey) && ['p', 's'].includes(String(e.key || '').toLowerCase())) {
+    e.preventDefault();
+  }
+});
+
+document.getElementById('cv-sheet')?.addEventListener('contextmenu', (e) => {
+  if (!isOwnerCvSession) e.preventDefault();
+});
 
 btnModeCv?.addEventListener('click', () => {
   currentMode = 'cv';
@@ -157,12 +197,13 @@ btnModePortfolio?.addEventListener('click', () => {
   renderDocument();
 });
 
-btnPrintPdf?.addEventListener('click', () => window.print());
+btnPrintPdf?.addEventListener('click', () => {
+  if (isOwnerCvSession) window.print();
+});
 
 btnDlDocx?.addEventListener('click', (e) => {
-  if (!hasBackendApi) {
+  if (!isOwnerCvSession || !hasBackendApi) {
     e.preventDefault();
-    window.print();
   }
 });
 
@@ -191,6 +232,7 @@ async function loadLiveSnapshot() {
   renderDocument();
 }
 
+await syncCvOwnerRole();
 await loadLiveSnapshot();
 
 if (hasBackendApi && typeof EventSource !== 'undefined') {

@@ -21,8 +21,8 @@
     <meta name="theme-color" content="#0F172A" />
     <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles/tokens.css?v=4.1" />
-    <link rel="stylesheet" href="./styles/main.css?v=4.1" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.2" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.2" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -82,7 +82,7 @@
             <li><a href="#pengalaman">Pengalaman</a></li>
             <li><a href="#sertifikasi">Sertifikasi</a></li>
             <li><a href="#sosial">Media Sosial</a></li>
-            <li><a href="#kontak">Unduh &amp; Kontak</a></li>
+            <li><a href="#kontak">CV &amp; Kontak</a></li>
           </ul>
         </nav>
       </div>
@@ -101,14 +101,7 @@
             <div class="cta-group">
               <a href="#proyek" class="btn btn-primary">Jelajahi Karya &amp; Simulator</a>
               <a href="./cv.html?mode=portfolio" class="btn btn-outline-light">
-                Portofolio &amp; CV Live (PDF)
-              </a>
-              <a
-                href="./api/export/cv.docx"
-                data-live-docx="cv"
-                class="btn btn-outline-light live-docx-btn"
-              >
-                Unduh CV Word (.docx)
+                Lihat Portofolio &amp; CV Live
               </a>
             </div>
 
@@ -282,36 +275,22 @@
         <div class="container">
           <div class="section-head">
             <div>
-              <h2 id="kontak-title" class="section-title">Dokumen Tersinkronisasi, CV Live &amp; Kontak Resmi</h2>
+              <h2 id="kontak-title" class="section-title">Pratinjau CV Live &amp; Kontak Resmi</h2>
               <p class="section-lead">
-                Seluruh proyek, pengalaman kerja, keahlian, sertifikat, maupun koleksi arsip yang ditambahkan melalui CMS otomatis tersinkronisasi ke halaman CV dan dokumen Word/PDF siap unduh.
+                Seluruh proyek, pengalaman kerja, keahlian, sertifikat, maupun koleksi arsip yang ditambahkan melalui CMS otomatis tersinkronisasi untuk ditinjau secara online. Pengunduhan dokumen dibatasi hanya untuk pemilik.
               </p>
             </div>
           </div>
 
           <div class="contact-grid">
             <div class="panel-box">
-              <h3>Unduhan &amp; Tautan Resmi</h3>
+              <h3>Pratinjau &amp; Tautan Resmi</h3>
               <p class="project-summary">
                 Domisili: Sidoarjo, Jawa Timur, Indonesia &middot; Terbuka untuk peran Full-Time, Kontrak, dan Remote IT (Web/Full-Stack Developer, UI/UX Designer, QA, Business/Data Support).
               </p>
               <div class="link-pills">
                 <a href="./cv.html" class="btn btn-primary btn-sm">
-                  Buka &amp; Cetak CV Live (PDF A4)
-                </a>
-                <a
-                  href="./api/export/portfolio.docx"
-                  data-live-docx="portfolio"
-                  class="btn btn-secondary btn-sm live-docx-btn"
-                >
-                  Unduh Portofolio Word (.docx)
-                </a>
-                <a
-                  href="./api/export/cv.docx"
-                  data-live-docx="cv"
-                  class="btn btn-secondary btn-sm live-docx-btn"
-                >
-                  Unduh CV Word (.docx)
+                  Lihat Portofolio &amp; CV Live
                 </a>
                 <a
                   id="github-profile-btn"
@@ -332,6 +311,7 @@
                 </a>
                 <button type="button" id="copy-email-btn" class="btn btn-secondary btn-sm">Salin Email</button>
               </div>
+              <div id="owner-export-actions" class="link-pills owner-export-strip is-hidden"></div>
             </div>
 
             <div class="panel-box">
@@ -349,7 +329,7 @@
                   <label for="sender-msg">Pesan</label>
                   <textarea id="sender-msg" rows="3" required placeholder="Informasi lowongan, jadwal interview, atau proyek..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary btn-sm">Buka Draft Email ke adamzuhrufanandaf@gmail.com</button>
+                <button type="submit" class="btn btn-primary btn-sm">Kirim</button>
                 <div id="contact-feedback" class="form-feedback" aria-live="polite"></div>
               </form>
             </div>
@@ -395,10 +375,13 @@
     <footer class="site-footer">
       <div class="container footer-inner">
         <span>&copy; 2026 Adam Zuhruf Ananda Farendra &middot; UNESA | Indonesia &middot; Siap Kerja Penuh Waktu / Remote</span>
-        <span>github.com/AdamZuhruf</span>
+        <div class="footer-right">
+          <span>github.com/AdamZuhruf</span>
+          <button type="button" id="owner-portal-btn" class="owner-entry-btn">Akses Pemilik / CMS</button>
+        </div>
       </div>
     </footer>
 
-    <script type="module" src="./scripts/main.js?v=4.1"></script>
+    <script type="module" src="./scripts/main.js?v=4.2"></script>
   </body>
 </html>

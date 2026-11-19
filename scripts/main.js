@@ -17,6 +17,7 @@ let activeCerts = CERTIFICATES;
 let activeSocials = SOCIAL_LINKS;
 let activeModules = CELERATES_MODULES;
 let activeShowcaseCards = [];
+let isOwnerAuthenticated = false;
 
 const toggle = document.querySelector('.nav-toggle');
 const nav = document.getElementById('primary-navigation');
@@ -524,17 +525,21 @@ function renderAttachmentList(container, files, headingText) {
 
     const actions = el('div', 'card-actions');
     const assetUrl = `./api/assets/${encodeURIComponent(f.assetId)}`;
-    if (/^image\/(png|jpeg|webp)$/.test(f.mimeType) || f.mimeType === 'application/pdf') {
-      const viewBtn = el('a', 'btn btn-secondary btn-sm', 'Lihat');
+    if (/^image\/(png|jpeg|webp)$/.test(f.mimeType)) {
+      const viewBtn = el('a', 'btn btn-secondary btn-sm', 'Lihat Gambar');
       viewBtn.href = assetUrl;
       viewBtn.target = '_blank';
       viewBtn.rel = 'noopener noreferrer';
       actions.appendChild(viewBtn);
     }
-    const dlBtn = el('a', 'btn btn-primary btn-sm', 'Unduh');
-    dlBtn.href = `${assetUrl}?download=1`;
-    dlBtn.download = f.fileName || 'berkas';
-    actions.appendChild(dlBtn);
+    if (isOwnerAuthenticated) {
+      const dlBtn = el('a', 'btn btn-primary btn-sm', 'Unduh');
+      dlBtn.href = `${assetUrl}?download=1`;
+      dlBtn.download = f.fileName || 'berkas';
+      actions.appendChild(dlBtn);
+    } else if (!/^image\/(png|jpeg|webp)$/.test(f.mimeType)) {
+      actions.appendChild(el('span', 'stack-pill', 'Khusus Pemilik (Lihat Saja)'));
+    }
 
     row.appendChild(actions);
     list.appendChild(row);
@@ -750,6 +755,7 @@ contactForm?.addEventListener('submit', async (e) => {
   }
 
   let targetMailto = null;
+  let savedDirect = false;
   if (hasBackendApi) {
     try {
       const resp = await fetch('./api/contact/validate', {
@@ -759,6 +765,7 @@ contactForm?.addEventListener('submit', async (e) => {
       });
       if (resp.ok) {
         const data = await resp.json();
+        if (data?.savedToDb) savedDirect = true;
         if (data?.mailtoUrl) targetMailto = data.mailtoUrl;
       } else if (resp.status === 400 || resp.status === 429) {
         const errData = await resp.json().catch(() => ({}));
@@ -772,6 +779,14 @@ contactForm?.addEventListener('submit', async (e) => {
     }
   }
 
+  if (savedDirect) {
+    contactForm.reset();
+    if (contactFeedback) {
+      contactFeedback.textContent = 'Pesan berhasil dikirim dan tersimpan aman untuk Adam Zuhruf.';
+    }
+    return;
+  }
+
   if (!targetMailto) {
     const cleanSender = sender.replace(/[<>]/g, '');
     const cleanOrg = org.replace(/[<>]/g, '');
@@ -782,7 +797,7 @@ contactForm?.addEventListener('submit', async (e) => {
   }
 
   window.location.href = targetMailto;
-  if (contactFeedback) contactFeedback.textContent = 'Draft email tervalidasi aman dibuka ke adamzuhrufanandaf@gmail.com.';
+  if (contactFeedback) contactFeedback.textContent = 'Pesan diteruskan melalui aplikasi email ke adamzuhrufanandaf@gmail.com.';
 });
 
 const hasBackendApi =
@@ -945,6 +960,9 @@ document.addEventListener('keydown', (event) => {
       nav.classList.remove('is-open');
     }
   }
+  if ((event.ctrlKey || event.metaKey) && !isOwnerAuthenticated && ['p', 's'].includes(String(event.key || '').toLowerCase())) {
+    event.preventDefault();
+  }
   if ((event.ctrlKey || event.altKey) && event.shiftKey && event.key.toLowerCase() === 'a') {
     event.preventDefault();
     triggerOwnerAccessPortal();
@@ -954,14 +972,43 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-/* ===== Exclusive Owner-Only CMS Dock & Portal (Never rendered for normal visitors) ===== */
+document.addEventListener('contextmenu', (event) => {
+  if (!isOwnerAuthenticated && event.target?.closest('.cert-img, .cert-zoom-img, .project-thumb, .stage-3d-shell')) {
+    event.preventDefault();
+  }
+});
+
+/* ===== Exclusive Owner-Only CMS Dock & Portal (Never unlocked for visitors) ===== */
 let ownerPortalModal = null;
 
 function unmountOwnerDock() {
   document.getElementById('owner-dock')?.remove();
+  const exportActions = document.getElementById('owner-export-actions');
+  if (exportActions) {
+    exportActions.textContent = '';
+    exportActions.classList.add('is-hidden');
+  }
+  const portalBtn = document.getElementById('owner-portal-btn');
+  if (portalBtn) portalBtn.textContent = 'Akses Pemilik / CMS';
+  document.body.classList.remove('owner-print-allowed');
 }
 
 function mountOwnerDock() {
+  document.body.classList.add('owner-print-allowed');
+  const portalBtn = document.getElementById('owner-portal-btn');
+  if (portalBtn) portalBtn.textContent = 'Buka Panel CMS (Pemilik Aktif)';
+
+  const exportActions = document.getElementById('owner-export-actions');
+  if (exportActions && exportActions.childElementCount === 0) {
+    const portDocx = el('a', 'btn btn-primary btn-sm', 'Unduh Portofolio Word (.docx) — Pemilik');
+    portDocx.href = './api/export/portfolio.docx';
+    const cvDocx = el('a', 'btn btn-secondary btn-sm', 'Unduh CV Word (.docx) — Pemilik');
+    cvDocx.href = './api/export/cv.docx';
+    exportActions.appendChild(portDocx);
+    exportActions.appendChild(cvDocx);
+    exportActions.classList.remove('is-hidden');
+  }
+
   if (document.getElementById('owner-dock')) return;
   const header = document.querySelector('.site-header');
   if (!header) return;
@@ -974,20 +1021,29 @@ function mountOwnerDock() {
   const inner = el('div', 'container owner-dock-inner');
   const meta = el('div', 'owner-dock-meta');
   meta.appendChild(el('span', 'owner-badge', 'Mode Pemilik Aktif'));
-  meta.appendChild(el('span', '', 'Anda masuk sebagai pemilik. Pengunjung lain hanya dapat melihat, mengunduh file, dan mengirim pesan rekrutmen.'));
+  meta.appendChild(el('span', '', 'Anda masuk sebagai pemilik. Pengunjung lain hanya dapat melihat dan mengirim pesan (unduhan dinonaktifkan).'));
 
   const actions = el('div', 'owner-dock-actions');
   const cmsLink = el('a', 'btn btn-primary btn-sm', 'Buka Panel CMS (Kelola Konten)');
   cmsLink.href = './admin';
 
+  const portBtn = el('a', 'btn btn-secondary btn-sm', 'Unduh Portofolio (.docx)');
+  portBtn.href = './api/export/portfolio.docx';
+
+  const cvBtn = el('a', 'btn btn-secondary btn-sm', 'Unduh CV (.docx)');
+  cvBtn.href = './api/export/cv.docx';
+
   const logoutBtn = el('button', 'btn btn-secondary btn-sm', 'Keluar Mode Pemilik');
   logoutBtn.type = 'button';
   logoutBtn.addEventListener('click', async () => {
     await fetch('./api/admin/logout', { method: 'POST' }).catch(() => {});
+    isOwnerAuthenticated = false;
     unmountOwnerDock();
   });
 
   actions.appendChild(cmsLink);
+  actions.appendChild(portBtn);
+  actions.appendChild(cvBtn);
   actions.appendChild(logoutBtn);
   inner.appendChild(meta);
   inner.appendChild(actions);
@@ -997,23 +1053,28 @@ function mountOwnerDock() {
 
 async function syncOwnerRole() {
   if (!hasBackendApi) {
+    isOwnerAuthenticated = false;
     unmountOwnerDock();
     return false;
   }
   try {
     const res = await fetch('./api/auth/role', { cache: 'no-store' });
     if (!res.ok) {
+      isOwnerAuthenticated = false;
       unmountOwnerDock();
       return false;
     }
     const data = await res.json();
     if (data?.authenticated && data?.role === 'owner') {
+      isOwnerAuthenticated = true;
       mountOwnerDock();
       return true;
     }
+    isOwnerAuthenticated = false;
     unmountOwnerDock();
     return false;
   } catch {
+    isOwnerAuthenticated = false;
     unmountOwnerDock();
     return false;
   }
@@ -1104,7 +1165,12 @@ function ensureOwnerPortalModal() {
 }
 
 async function triggerOwnerAccessPortal() {
-  if (!hasBackendApi) return;
+  if (!hasBackendApi) {
+    if (socialCopyFeedback) {
+      socialCopyFeedback.textContent = 'Panel CMS pemilik hanya tersedia pada server aplikasi utama.';
+    }
+    return;
+  }
   const alreadyOwner = await syncOwnerRole();
   if (alreadyOwner) {
     window.location.href = './admin';
@@ -1114,6 +1180,10 @@ async function triggerOwnerAccessPortal() {
   modal.classList.add('is-open');
   document.getElementById('owner-portal-key')?.focus();
 }
+
+document.getElementById('owner-portal-btn')?.addEventListener('click', () => {
+  triggerOwnerAccessPortal();
+});
 
 /* Discreet 3x tap/click on AZ logo badge (works on both desktop & mobile without showing CMS UI to visitors) */
 const brandMarkEl = document.querySelector('.brand-mark');

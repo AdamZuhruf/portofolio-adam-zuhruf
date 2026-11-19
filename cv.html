@@ -9,22 +9,22 @@
       content="Curriculum Vitae dan Ringkasan Portofolio resmi Adam Zuhruf Ananda Farendra yang selalu tersinkronisasi secara real-time dengan basis data proyek, pengalaman, skill, sertifikat, dan arsip karya."
     />
     <link rel="icon" type="image/png" href="./assets/portrait-studio-circle.png" />
-    <link rel="stylesheet" href="./styles/tokens.css?v=4.1" />
-    <link rel="stylesheet" href="./styles/main.css?v=4.1" />
+    <link rel="stylesheet" href="./styles/tokens.css?v=4.2" />
+    <link rel="stylesheet" href="./styles/main.css?v=4.2" />
   </head>
   <body>
     <header class="site-header cv-no-print">
       <div class="container nav-bar">
         <a href="./index.html" class="brand">
           <span class="brand-mark" aria-hidden="true">AZ</span>
-          <span>CV &amp; Portofolio Tersinkronisasi</span>
+          <span>CV &amp; Portofolio Live (Hanya Lihat)</span>
         </a>
         <div class="cta-group">
           <a href="./index.html" class="btn btn-secondary btn-sm">Kembali ke Web Utama</a>
           <button type="button" id="btn-mode-cv" class="btn btn-primary btn-sm">Tampilan CV</button>
           <button type="button" id="btn-mode-portfolio" class="btn btn-secondary btn-sm">Tampilan Portofolio</button>
-          <button type="button" id="btn-print-pdf" class="btn btn-primary btn-sm">Cetak / Simpan PDF (A4)</button>
-          <a id="btn-dl-docx" href="./api/export/cv.docx" class="btn btn-secondary btn-sm">Unduh Word (.docx)</a>
+          <button type="button" id="btn-print-pdf" class="btn btn-primary btn-sm is-hidden">Cetak / Simpan PDF (A4)</button>
+          <a id="btn-dl-docx" href="./api/export/cv.docx" class="btn btn-secondary btn-sm is-hidden">Unduh Word (.docx)</a>
         </div>
       </div>
     </header>
@@ -83,6 +83,6 @@
       </div>
     </main>
 
-    <script type="module" src="./scripts/cv.js?v=4.1"></script>
+    <script type="module" src="./scripts/cv.js?v=4.2"></script>
   </body>
 </html>

@@ -197,7 +197,7 @@ export async function registerPortfolioRoutes(app) {
       role: isOwner ? 'owner' : 'visitor',
       capabilities: {
         view: true,
-        download: true,
+        download: isOwner,
         contact: true,
         cmsAccess: isOwner,
         edit: isOwner,
@@ -265,7 +265,7 @@ export async function registerPortfolioRoutes(app) {
 
   app.get(
     '/api/export/cv.docx',
-    { config: { rateLimit: { max: 25, timeWindow: '1 minute' } } },
+    { preHandler: requireAdminAuth, config: { rateLimit: { max: 25, timeWindow: '1 minute' } } },
     async (_req, reply) => {
       const snap = await buildEnrichedSnapshot();
       const buf = await buildLiveCvDocxBuffer(snap);
@@ -279,7 +279,7 @@ export async function registerPortfolioRoutes(app) {
 
   app.get(
     '/api/export/portfolio.docx',
-    { config: { rateLimit: { max: 25, timeWindow: '1 minute' } } },
+    { preHandler: requireAdminAuth, config: { rateLimit: { max: 25, timeWindow: '1 minute' } } },
     async (_req, reply) => {
       const snap = await buildEnrichedSnapshot();
       const buf = await buildLivePortfolioDocxBuffer(snap);
@@ -300,6 +300,29 @@ export async function registerPortfolioRoutes(app) {
     if (!asset) {
       return reply.code(404).send({ error: 'Aset tidak ditemukan' });
     }
+
+    const isSafeInlineImage = /^image\/(png|jpeg|webp)$/.test(asset.mime_type);
+    const forceDownload = req.query?.download === '1';
+    const ownerAuth = isOwnerSessionAuthenticated(req);
+    if (forceDownload || !isSafeInlineImage) {
+      if (!isAdminConfigured()) {
+        return reply.code(503).send({ ok: false, error: 'Unduhan berkas terkunci: ADMIN_API_KEY belum dikonfigurasi.' });
+      }
+      if (!ownerAuth.authenticated) {
+        await recordSecurityAudit({
+          eventType: 'UNAUTHORIZED_DOWNLOAD_BLOCKED',
+          path: `/api/assets/${assetId}`,
+          severity: 'medium',
+          ipHash: hashIp(req.ip),
+          detail: 'Visitor blocked from downloading file/document'
+        });
+        return reply.code(401).send({
+          ok: false,
+          error: 'Unauthorized: Pengunduhan berkas & dokumen hanya diizinkan untuk pemilik portofolio.'
+        });
+      }
+    }
+
     const okSig = verifyAssetDigest(asset.sha3_digest, `${asset.id}|${asset.file_name}|${asset.mime_type}`, asset.pqc_sig);
     if (!okSig) {
       await recordSecurityAudit({
@@ -313,8 +336,6 @@ export async function registerPortfolioRoutes(app) {
     }
 
     const buf = Buffer.from(asset.data_b64, 'base64');
-    const isSafeInlineImage = /^image\/(png|jpeg|webp)$/.test(asset.mime_type);
-    const forceDownload = req.query?.download === '1';
     const disposition = !forceDownload && (isSafeInlineImage || asset.mime_type === 'application/pdf') ? 'inline' : 'attachment';
     const cleanFilename = String(asset.file_name || 'berkas').replace(/["\\r\n]/g, '_');
 
@@ -324,7 +345,7 @@ export async function registerPortfolioRoutes(app) {
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('Cross-Origin-Resource-Policy', 'same-origin');
     reply.header('X-Asset-Sha3-256', asset.sha3_digest);
-    reply.header('Cache-Control', 'public, max-age=86400, immutable');
+    reply.header('Cache-Control', forceDownload || !isSafeInlineImage ? 'no-store' : 'public, max-age=86400, immutable');
     return reply.send(buf);
   });
 
