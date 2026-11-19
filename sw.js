@@ -1,12 +1,12 @@
-const CACHE_NAME = 'adam-portfolio-3d-v10';
+const CACHE_NAME = 'adam-portfolio-3d-v11';
 const ASSETS = [
   './',
   './index.html',
   './cv.html',
-  './styles/tokens.css?v=4.0',
-  './styles/main.css?v=4.0',
-  './scripts/main.js?v=4.0',
-  './scripts/cv.js?v=4.0',
+  './styles/tokens.css?v=4.1',
+  './styles/main.css?v=4.1',
+  './scripts/main.js?v=4.1',
+  './scripts/cv.js?v=4.1',
   './scripts/hero-3d.js?v=4.0',
   './data/portfolio-data.js?v=4.0',
   './manifest.webmanifest'

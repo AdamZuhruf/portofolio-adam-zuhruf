@@ -939,11 +939,202 @@ document.addEventListener('keydown', (event) => {
     projectModal?.classList.remove('is-open');
     certModal?.classList.remove('is-open');
     folderModal?.classList.remove('is-open');
+    document.getElementById('owner-portal-modal')?.classList.remove('is-open');
     if (nav?.classList.contains('is-open')) {
       toggle?.setAttribute('aria-expanded', 'false');
       nav.classList.remove('is-open');
     }
   }
+  if ((event.ctrlKey || event.altKey) && event.shiftKey && event.key.toLowerCase() === 'a') {
+    event.preventDefault();
+    triggerOwnerAccessPortal();
+  } else if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 'a') {
+    event.preventDefault();
+    triggerOwnerAccessPortal();
+  }
+});
+
+/* ===== Exclusive Owner-Only CMS Dock & Portal (Never rendered for normal visitors) ===== */
+let ownerPortalModal = null;
+
+function unmountOwnerDock() {
+  document.getElementById('owner-dock')?.remove();
+}
+
+function mountOwnerDock() {
+  if (document.getElementById('owner-dock')) return;
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+
+  const dock = el('div', 'owner-dock');
+  dock.id = 'owner-dock';
+  dock.setAttribute('role', 'region');
+  dock.setAttribute('aria-label', 'Kontrol Pemilik Portofolio');
+
+  const inner = el('div', 'container owner-dock-inner');
+  const meta = el('div', 'owner-dock-meta');
+  meta.appendChild(el('span', 'owner-badge', 'Mode Pemilik Aktif'));
+  meta.appendChild(el('span', '', 'Anda masuk sebagai pemilik. Pengunjung lain hanya dapat melihat, mengunduh file, dan mengirim pesan rekrutmen.'));
+
+  const actions = el('div', 'owner-dock-actions');
+  const cmsLink = el('a', 'btn btn-primary btn-sm', 'Buka Panel CMS (Kelola Konten)');
+  cmsLink.href = './admin';
+
+  const logoutBtn = el('button', 'btn btn-secondary btn-sm', 'Keluar Mode Pemilik');
+  logoutBtn.type = 'button';
+  logoutBtn.addEventListener('click', async () => {
+    await fetch('./api/admin/logout', { method: 'POST' }).catch(() => {});
+    unmountOwnerDock();
+  });
+
+  actions.appendChild(cmsLink);
+  actions.appendChild(logoutBtn);
+  inner.appendChild(meta);
+  inner.appendChild(actions);
+  dock.appendChild(inner);
+  header.insertAdjacentElement('afterend', dock);
+}
+
+async function syncOwnerRole() {
+  if (!hasBackendApi) {
+    unmountOwnerDock();
+    return false;
+  }
+  try {
+    const res = await fetch('./api/auth/role', { cache: 'no-store' });
+    if (!res.ok) {
+      unmountOwnerDock();
+      return false;
+    }
+    const data = await res.json();
+    if (data?.authenticated && data?.role === 'owner') {
+      mountOwnerDock();
+      return true;
+    }
+    unmountOwnerDock();
+    return false;
+  } catch {
+    unmountOwnerDock();
+    return false;
+  }
+}
+
+function ensureOwnerPortalModal() {
+  if (ownerPortalModal) return ownerPortalModal;
+  const backdrop = el('div', 'modal-backdrop');
+  backdrop.id = 'owner-portal-modal';
+  backdrop.setAttribute('role', 'dialog');
+  backdrop.setAttribute('aria-modal', 'true');
+  backdrop.setAttribute('aria-labelledby', 'owner-modal-title');
+
+  const panel = el('div', 'modal-panel');
+  const header = el('div', 'modal-header');
+  const title = el('h2', '', 'Verifikasi Pemilik Portofolio');
+  title.id = 'owner-modal-title';
+  const closeBtn = el('button', 'close-btn', '×');
+  closeBtn.type = 'button';
+  closeBtn.setAttribute('aria-label', 'Tutup dialog verifikasi pemilik');
+  closeBtn.addEventListener('click', () => backdrop.classList.remove('is-open'));
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+
+  const note = el(
+    'p',
+    'owner-modal-note',
+    'Hanya pemilik yang memiliki kunci akses sah yang dapat membuka panel manajemen konten, mengunggah file/folder, dan mengelola pesan masuk.'
+  );
+
+  const form = el('form', 'contact-form');
+  const field = el('div', 'form-field');
+  const lbl = el('label', '', 'Kunci Akses Pemilik (ADMIN_API_KEY)');
+  lbl.setAttribute('for', 'owner-portal-key');
+  const input = document.createElement('input');
+  input.id = 'owner-portal-key';
+  input.type = 'password';
+  input.required = true;
+  input.autocomplete = 'current-password';
+  input.placeholder = 'Masukkan kunci akses pemilik';
+  field.appendChild(lbl);
+  field.appendChild(input);
+
+  const feedback = el('div', 'form-feedback');
+  feedback.setAttribute('aria-live', 'polite');
+
+  const submitBtn = el('button', 'btn btn-primary btn-sm', 'Masuk & Buka Panel CMS');
+  submitBtn.type = 'submit';
+
+  form.appendChild(field);
+  form.appendChild(submitBtn);
+  form.appendChild(feedback);
+
+  form.addEventListener('submit', async (evt) => {
+    evt.preventDefault();
+    feedback.textContent = 'Memverifikasi kunci akses pemilik...';
+    try {
+      const res = await fetch('./api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: input.value })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        feedback.textContent = data.error || 'Kunci akses tidak valid.';
+        return;
+      }
+      input.value = '';
+      backdrop.classList.remove('is-open');
+      await syncOwnerRole();
+      window.location.href = './admin';
+    } catch {
+      feedback.textContent = 'Server autentikasi tidak dapat dijangkau.';
+    }
+  });
+
+  backdrop.addEventListener('click', (evt) => {
+    if (evt.target === backdrop) backdrop.classList.remove('is-open');
+  });
+
+  panel.appendChild(header);
+  panel.appendChild(note);
+  panel.appendChild(form);
+  backdrop.appendChild(panel);
+  document.body.appendChild(backdrop);
+  ownerPortalModal = backdrop;
+  return backdrop;
+}
+
+async function triggerOwnerAccessPortal() {
+  if (!hasBackendApi) return;
+  const alreadyOwner = await syncOwnerRole();
+  if (alreadyOwner) {
+    window.location.href = './admin';
+    return;
+  }
+  const modal = ensureOwnerPortalModal();
+  modal.classList.add('is-open');
+  document.getElementById('owner-portal-key')?.focus();
+}
+
+/* Discreet 3x tap/click on AZ logo badge (works on both desktop & mobile without showing CMS UI to visitors) */
+const brandMarkEl = document.querySelector('.brand-mark');
+if (brandMarkEl) {
+  let tapCount = 0;
+  let lastTapAt = 0;
+  brandMarkEl.addEventListener('click', (event) => {
+    const now = Date.now();
+    tapCount = now - lastTapAt <= 1200 ? tapCount + 1 : 1;
+    lastTapAt = now;
+    if (tapCount >= 3) {
+      tapCount = 0;
+      event.preventDefault();
+      event.stopPropagation();
+      triggerOwnerAccessPortal();
+    }
+  });
+}
+
+window.addEventListener('focus', () => {
+  syncOwnerRole();
 });
 
 document.querySelectorAll('.live-docx-btn').forEach((link) => {
@@ -964,6 +1155,7 @@ renderCertificates();
 renderShowcaseCards();
 renderSocials();
 syncFromDatabaseApi();
+syncOwnerRole();
 connectRealTimeStream();
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});

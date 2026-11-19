@@ -5,6 +5,7 @@ import {
   handleAdminLogout,
   hashIp,
   isAdminConfigured,
+  isOwnerSessionAuthenticated,
   requireAdminAuth
 } from './adminAuth.mjs';
 import { config } from './config.mjs';
@@ -182,6 +183,27 @@ export async function registerPortfolioRoutes(app) {
         quarantinesIssued: shieldMetrics.quarantinesIssued
       },
       uptimeSec: Math.round(process.uptime())
+    };
+  });
+
+  app.get('/api/auth/role', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const auth = isOwnerSessionAuthenticated(req);
+    const isOwner = Boolean(auth.authenticated);
+    return {
+      ok: true,
+      authenticated: isOwner,
+      configured: Boolean(auth.configured),
+      role: isOwner ? 'owner' : 'visitor',
+      capabilities: {
+        view: true,
+        download: true,
+        contact: true,
+        cmsAccess: isOwner,
+        edit: isOwner,
+        upload: isOwner,
+        delete: isOwner
+      }
     };
   });
 

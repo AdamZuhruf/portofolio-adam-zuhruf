@@ -75,7 +75,7 @@ export async function handleAdminLogin(req, reply) {
   const secureFlag = config.isProd && req.protocol === 'https' ? '; Secure' : '';
   reply.header(
     'Set-Cookie',
-    `${COOKIE_NAME}=${encodeURIComponent(sessionToken)}; HttpOnly; SameSite=Strict; Path=/api/admin; Max-Age=${SESSION_TTL_SEC}${secureFlag}`
+    `${COOKIE_NAME}=${encodeURIComponent(sessionToken)}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=${SESSION_TTL_SEC}${secureFlag}`
   );
   reply.header('Cache-Control', 'no-store');
   await recordSecurityAudit({
@@ -91,9 +91,43 @@ export async function handleAdminLogin(req, reply) {
 export async function handleAdminLogout(req, reply) {
   const cookies = parseCookies(req.headers.cookie);
   revokeHybridSessionToken(cookies[COOKIE_NAME]);
-  reply.header('Set-Cookie', `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/api/admin; Max-Age=0`);
+  const secureFlag = config.isProd && req.protocol === 'https' ? '; Secure' : '';
+  reply.header('Set-Cookie', `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/api; Max-Age=0${secureFlag}`);
   reply.header('Cache-Control', 'no-store');
   return { ok: true };
+}
+
+function isTrustedOrigin(origin, req) {
+  if (!origin) return true;
+  if (config.allowedOrigins.has(origin) || /^https:\/\/[a-z0-9-]+\.up\.railway\.app$/i.test(origin)) {
+    return true;
+  }
+  const host = String(req.headers.host || '').trim();
+  if (host && (origin === `https://${host}` || origin === `http://${host}`)) {
+    return true;
+  }
+  return false;
+}
+
+export function isOwnerSessionAuthenticated(req) {
+  if (!isAdminConfigured()) {
+    return { authenticated: false, method: 'none', configured: false };
+  }
+
+  const authHeader = String(req.headers.authorization || '');
+  if (authHeader.startsWith('Bearer ')) {
+    const bearer = authHeader.slice(7).trim();
+    if (timingSafeMatch(bearer, config.adminApiKey)) {
+      return { authenticated: true, method: 'bearer', configured: true };
+    }
+  }
+
+  const cookies = parseCookies(req.headers.cookie);
+  if (verifyHybridSessionToken(cookies[COOKIE_NAME])) {
+    return { authenticated: true, method: 'cookie', configured: true };
+  }
+
+  return { authenticated: false, method: 'none', configured: true };
 }
 
 export async function requireAdminAuth(req, reply) {
@@ -104,20 +138,26 @@ export async function requireAdminAuth(req, reply) {
     });
   }
 
-  const authHeader = String(req.headers.authorization || '');
-  if (authHeader.startsWith('Bearer ')) {
-    const bearer = authHeader.slice(7).trim();
-    if (timingSafeMatch(bearer, config.adminApiKey)) {
-      return;
-    }
+  const auth = isOwnerSessionAuthenticated(req);
+  if (!auth.authenticated) {
+    return reply.code(401).send({ ok: false, error: 'Unauthorized: Sesi admin Post-Quantum diperlukan.' });
   }
 
-  const cookies = parseCookies(req.headers.cookie);
-  if (verifyHybridSessionToken(cookies[COOKIE_NAME])) {
-    return;
+  if (
+    auth.method === 'cookie' &&
+    ['POST', 'PUT', 'PATCH', 'DELETE'].includes(String(req.method || '').toUpperCase()) &&
+    req.headers.origin &&
+    !isTrustedOrigin(req.headers.origin, req)
+  ) {
+    await recordSecurityAudit({
+      eventType: 'CSRF_ORIGIN_BLOCKED',
+      path: String(req.url || '/api/admin'),
+      severity: 'high',
+      ipHash: hashIp(req.ip),
+      detail: `Untrusted Origin: ${String(req.headers.origin).slice(0, 120)}`
+    });
+    return reply.code(403).send({ ok: false, error: 'Forbidden: Origin permintaan mutasi admin tidak diizinkan.' });
   }
-
-  return reply.code(401).send({ ok: false, error: 'Unauthorized: Sesi admin Post-Quantum diperlukan.' });
 }
 
 export function resetAdminAuthForTest() {

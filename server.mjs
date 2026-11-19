@@ -114,6 +114,7 @@ export async function buildApp(options = {}) {
   await registerPortfolioRoutes(app);
 
   app.get('/admin', async (_req, reply) => {
+    reply.header('Cache-Control', 'no-store');
     return reply.sendFile('admin.html');
   });
 
@@ -128,7 +129,9 @@ export async function buildApp(options = {}) {
     setHeaders(res, filePath) {
       const ext = path.extname(filePath).toLowerCase();
       const base = path.basename(filePath).toLowerCase();
-      if (ext === '.html' || base === 'sw.js') {
+      if (base === 'admin.html') {
+        res.header('Cache-Control', 'no-store');
+      } else if (ext === '.html' || base === 'sw.js') {
         res.header('Cache-Control', 'public, max-age=0, must-revalidate');
       } else if (ext === '.js' || ext === '.css' || ext === '.webmanifest') {
         res.header('Cache-Control', 'public, max-age=300, must-revalidate');

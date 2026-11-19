@@ -16,6 +16,19 @@ function clearAndAppend(parent, child) {
   parent.appendChild(child);
 }
 
+async function deleteAdminItem(url, label) {
+  if (!window.confirm(`Hapus ${label} ini secara permanen dari database portofolio?`)) return;
+  const res = await fetch(url, { method: 'DELETE' });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 || res.status === 403) {
+    cmsFeedback.textContent = data.error || 'Sesi pemilik berakhir. Silakan login kembali.';
+    await checkSession();
+    return;
+  }
+  cmsFeedback.textContent = res.ok ? `${label} berhasil dihapus.` : data.error || `Gagal menghapus ${label}.`;
+  if (res.ok) await loadCmsData();
+}
+
 function slugifyId(rawText, prefix = 'item') {
   const cleaned = String(rawText || '')
     .toLowerCase()
@@ -233,8 +246,7 @@ async function loadCmsData() {
               document.getElementById('c-title').focus();
             },
             onDelete: async (id) => {
-              await fetch(`./api/admin/cards/${encodeURIComponent(id)}`, { method: 'DELETE' });
-              loadCmsData();
+              await deleteAdminItem(`./api/admin/cards/${encodeURIComponent(id)}`, 'kartu file/folder');
             }
           }
         )
@@ -271,8 +283,7 @@ async function loadCmsData() {
             document.getElementById('p-title').focus();
           },
           onDelete: async (id) => {
-            await fetch(`./api/admin/projects/${encodeURIComponent(id)}`, { method: 'DELETE' });
-            loadCmsData();
+            await deleteAdminItem(`./api/admin/projects/${encodeURIComponent(id)}`, 'proyek');
           }
         }
       )
@@ -297,8 +308,7 @@ async function loadCmsData() {
             document.getElementById('cert-title').focus();
           },
           onDelete: async (id) => {
-            await fetch(`./api/admin/certificates/${encodeURIComponent(id)}`, { method: 'DELETE' });
-            loadCmsData();
+            await deleteAdminItem(`./api/admin/certificates/${encodeURIComponent(id)}`, 'sertifikat');
           }
         }
       )
@@ -320,8 +330,7 @@ async function loadCmsData() {
             document.getElementById('e-role').focus();
           },
           onDelete: async (id) => {
-            await fetch(`./api/admin/experiences/${encodeURIComponent(id)}`, { method: 'DELETE' });
-            loadCmsData();
+            await deleteAdminItem(`./api/admin/experiences/${encodeURIComponent(id)}`, 'pengalaman kerja');
           }
         }
       )
@@ -344,8 +353,7 @@ async function loadCmsData() {
             document.getElementById('s-name').focus();
           },
           onDelete: async (id) => {
-            await fetch(`./api/admin/skills/${encodeURIComponent(id)}`, { method: 'DELETE' });
-            loadCmsData();
+            await deleteAdminItem(`./api/admin/skills/${encodeURIComponent(id)}`, 'skill');
           }
         }
       )

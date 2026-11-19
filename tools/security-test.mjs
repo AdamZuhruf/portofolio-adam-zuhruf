@@ -423,7 +423,93 @@ async function runTests() {
     }
     passed++;
 
-    console.log(`PASS [security-test] ${passed}/18 test suites passed (Fastify 5 + DB Dual-Engine + PQC ML-DSA-65 + Anti-AI + Real-Time GitHub/SSE Sync + Clean UI).`);
+    // 19. Strict Owner vs Visitor RBAC, CSRF Origin Protection & Clean Footer URL Removal
+    const footerHtml = home.body.slice(home.body.indexOf('<footer'), home.body.indexOf('</footer>') + 9);
+    assert.ok(!footerHtml.includes('portofolio-adam-zuhruf.up.railway.app'), 'Footer must not display raw railway URL');
+    assert.ok(!home.body.includes('admin.html'), 'Public index.html must not expose admin.html link');
+
+    const { config: rbacCfg } = await import('../server/config.mjs');
+    const prevAdminKey = rbacCfg.adminApiKey;
+    rbacCfg.adminApiKey = 'test_only_strong_key_min_32_characters_long';
+    try {
+      const visitorRole = await app.inject({ method: 'GET', url: '/api/auth/role', remoteAddress: '10.0.0.40' });
+      assert.equal(visitorRole.statusCode, 200);
+      assert.equal(visitorRole.json().role, 'visitor');
+      assert.equal(visitorRole.json().authenticated, false);
+      assert.equal(visitorRole.json().capabilities.view, true);
+      assert.equal(visitorRole.json().capabilities.download, true);
+      assert.equal(visitorRole.json().capabilities.contact, true);
+      assert.equal(visitorRole.json().capabilities.edit, false);
+      assert.equal(visitorRole.json().capabilities.cmsAccess, false);
+
+      // Visitor blocked from all CMS writes and private reads (401)
+      for (const reqSpec of [
+        { method: 'GET', url: '/api/admin/inquiries' },
+        { method: 'GET', url: '/api/admin/security-logs' },
+        { method: 'POST', url: '/api/admin/skills', payload: { id: 'x1', category: 'a', name: 'b', level: 'c', evidence: 'defgh' } },
+        { method: 'DELETE', url: '/api/admin/projects/velpar-store' },
+        { method: 'POST', url: '/api/admin/assets/upload', payload: { fileName: 'x.txt', dataBase64: 'aGVsbG8=' } }
+      ]) {
+        const denied = await app.inject({ ...reqSpec, remoteAddress: '10.0.0.40' });
+        assert.equal(denied.statusCode, 401, `Expected 401 for visitor on ${reqSpec.method} ${reqSpec.url}`);
+      }
+
+      // Owner login issues HttpOnly Path=/api cookie enabling /api/auth/role = owner
+      const ownerLogin = await app.inject({
+        method: 'POST',
+        url: '/api/admin/login',
+        remoteAddress: '10.0.0.41',
+        payload: { apiKey: rbacCfg.adminApiKey }
+      });
+      assert.equal(ownerLogin.statusCode, 200);
+      const rawCookieHeader = String(ownerLogin.headers['set-cookie'] || '');
+      assert.ok(rawCookieHeader.includes('Path=/api'), 'Session cookie must use Path=/api');
+      const ownerCookie = rawCookieHeader.split(';')[0];
+
+      const ownerRole = await app.inject({
+        method: 'GET',
+        url: '/api/auth/role',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie }
+      });
+      assert.equal(ownerRole.statusCode, 200);
+      assert.equal(ownerRole.json().role, 'owner');
+      assert.equal(ownerRole.json().authenticated, true);
+      assert.equal(ownerRole.json().capabilities.cmsAccess, true);
+      assert.equal(ownerRole.json().capabilities.edit, true);
+
+      // Cross-origin CSRF mutation attempt with cookie blocked (403)
+      const csrfRes = await app.inject({
+        method: 'POST',
+        url: '/api/admin/skills',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie, origin: 'https://attacker.invalid' },
+        payload: { id: 'csrf-try', category: 'Sec', name: 'Bad', level: 'Low', evidence: 'CSRF blocked' }
+      });
+      assert.equal(csrfRes.statusCode, 403);
+
+      // Logout immediately downgrades role back to visitor
+      const outRes = await app.inject({
+        method: 'POST',
+        url: '/api/admin/logout',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie }
+      });
+      assert.equal(outRes.statusCode, 200);
+      const postLogoutRole = await app.inject({
+        method: 'GET',
+        url: '/api/auth/role',
+        remoteAddress: '10.0.0.41',
+        headers: { cookie: ownerCookie }
+      });
+      assert.equal(postLogoutRole.json().role, 'visitor');
+      assert.equal(postLogoutRole.json().authenticated, false);
+    } finally {
+      rbacCfg.adminApiKey = prevAdminKey;
+    }
+    passed++;
+
+    console.log(`PASS [security-test] ${passed}/19 test suites passed (Fastify 5 + DB Dual-Engine + PQC ML-DSA-65 + Anti-AI + RBAC Owner/Visitor + Real-Time Sync).`);
   } finally {
     await app.close();
   }
