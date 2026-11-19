@@ -15,6 +15,14 @@ const EnvSchema = z.object({
     z.string().trim().email().default('adamzuhrufanandaf@gmail.com')
   ),
   DATABASE_URL: z.string().trim().optional().default(''),
+  DATABASE_PRIVATE_URL: z.string().trim().optional().default(''),
+  DATABASE_PUBLIC_URL: z.string().trim().optional().default(''),
+  POSTGRES_URL: z.string().trim().optional().default(''),
+  PGHOST: z.string().trim().optional().default(''),
+  PGPORT: z.string().trim().optional().default(''),
+  PGUSER: z.string().trim().optional().default(''),
+  PGPASSWORD: z.string().trim().optional().default(''),
+  PGDATABASE: z.string().trim().optional().default(''),
   SQLITE_PATH: z.preprocess(emptyToUndefined, z.string().trim().default('./storage/portfolio.sqlite')),
   ADMIN_API_KEY: z.string().trim().optional().default(''),
   ADMIN_SESSION_SECRET: z.string().trim().optional().default(''),
@@ -32,6 +40,22 @@ if (!parsed.success) {
   process.exit(1);
 }
 
+function resolveDatabaseUrl(env) {
+  for (const candidate of [env.DATABASE_URL, env.DATABASE_PRIVATE_URL, env.DATABASE_PUBLIC_URL, env.POSTGRES_URL]) {
+    if (candidate && /^postgres(?:ql)?:\/\//i.test(candidate)) {
+      return candidate;
+    }
+  }
+  if (env.PGHOST && env.PGUSER && env.PGDATABASE) {
+    const port = env.PGPORT || '5432';
+    const user = encodeURIComponent(env.PGUSER);
+    const pass = encodeURIComponent(env.PGPASSWORD || '');
+    const auth = env.PGPASSWORD ? `${user}:${pass}` : user;
+    return `postgresql://${auth}@${env.PGHOST}:${port}/${encodeURIComponent(env.PGDATABASE)}`;
+  }
+  return env.DATABASE_URL || '';
+}
+
 const rawEnv = parsed.data;
 const customOrigins = rawEnv.ALLOWED_ORIGINS.split(',')
   .map((o) => o.trim())
@@ -45,7 +69,7 @@ export const config = {
   host: rawEnv.HOST,
   publicSiteUrl: rawEnv.PUBLIC_SITE_URL.replace(/\/+$/, ''),
   publicContactEmail: rawEnv.PUBLIC_CONTACT_EMAIL,
-  databaseUrl: rawEnv.DATABASE_URL,
+  databaseUrl: resolveDatabaseUrl(rawEnv),
   sqlitePath: rawEnv.SQLITE_PATH,
   adminApiKey: rawEnv.ADMIN_API_KEY,
   adminSessionSecret: rawEnv.ADMIN_SESSION_SECRET,

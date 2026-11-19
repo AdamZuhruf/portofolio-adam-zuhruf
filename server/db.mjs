@@ -318,8 +318,9 @@ async function seedIfEmpty() {
   } else {
     const kb = PROJECTS.find((p) => p.id === 'karya-berdua');
     if (kb) {
+      const highlightsCol = engineType === 'postgresql' ? 'highlights_json::text' : 'highlights_json';
       await execQuery(
-        `UPDATE portfolio_projects SET summary = ?, highlights_json = ? WHERE id = ? AND highlights_json LIKE '%Optical HUD%'`,
+        `UPDATE portfolio_projects SET summary = ?, highlights_json = ? WHERE id = ? AND ${highlightsCol} LIKE '%Optical HUD%'`,
         [kb.summary, JSON.stringify(kb.highlights), 'karya-berdua']
       ).catch(() => {});
     }
@@ -383,28 +384,55 @@ async function seedIfEmpty() {
   }
 }
 
+async function connectPostgresWithAdaptiveSsl(dbUrl) {
+  const preferNoSsl = /localhost|127\.0\.0\.1|\.railway\.internal|sslmode=disable/i.test(dbUrl);
+  const sslCandidates = preferNoSsl
+    ? [false, { rejectUnauthorized: false }]
+    : [{ rejectUnauthorized: false }, false];
+
+  let lastErr = null;
+  for (const sslOpt of sslCandidates) {
+    const pool = new Pool({
+      connectionString: dbUrl,
+      ssl: sslOpt,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000
+    });
+    try {
+      await pool.query('SELECT 1');
+      return pool;
+    } catch (err) {
+      lastErr = err;
+      await pool.end().catch(() => {});
+    }
+  }
+  throw lastErr || new Error('PostgreSQL connection failed');
+}
+
 export async function initDatabase(options = {}) {
   if (pgPool || sqliteDb || memStore) return;
 
   const dbUrl = options.databaseUrl ?? config.databaseUrl;
   if (dbUrl && /^postgres(?:ql)?:\/\//i.test(dbUrl)) {
-    try {
-      const isLocal = /localhost|127\.0\.0\.1/i.test(dbUrl);
-      pgPool = new Pool({
-        connectionString: dbUrl,
-        ssl: isLocal ? false : { rejectUnauthorized: false },
-        max: 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000
-      });
-      await pgPool.query('SELECT 1');
-      engineType = 'postgresql';
-      await createTables();
-      await seedIfEmpty();
-      return;
-    } catch (err) {
-      console.warn('[db] PostgreSQL connect failed, falling back cleanly:', err.message);
-      pgPool = null;
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        pgPool = await connectPostgresWithAdaptiveSsl(dbUrl);
+        engineType = 'postgresql';
+        await createTables();
+        await seedIfEmpty();
+        console.info('[db] PostgreSQL connected & synchronized (9 tables).');
+        return;
+      } catch (err) {
+        pgPool = null;
+        const transient = /EAI_AGAIN|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|timeout/i.test(`${err?.code || ''} ${err?.message || ''}`);
+        if (attempt === 1 && transient) {
+          await new Promise((r) => setTimeout(r, 1200));
+          continue;
+        }
+        console.warn('[db] PostgreSQL connect failed, falling back cleanly:', err.message);
+        break;
+      }
     }
   }
 
