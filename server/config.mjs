@@ -40,20 +40,32 @@ if (!parsed.success) {
   process.exit(1);
 }
 
+function cleanEnvValue(raw) {
+  return String(raw || '')
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .trim();
+}
+
 function resolveDatabaseUrl(env) {
-  for (const candidate of [env.DATABASE_URL, env.DATABASE_PRIVATE_URL, env.DATABASE_PUBLIC_URL, env.POSTGRES_URL]) {
+  for (const rawCandidate of [env.DATABASE_URL, env.DATABASE_PRIVATE_URL, env.DATABASE_PUBLIC_URL, env.POSTGRES_URL]) {
+    const candidate = cleanEnvValue(rawCandidate);
     if (candidate && /^postgres(?:ql)?:\/\//i.test(candidate)) {
       return candidate;
     }
   }
-  if (env.PGHOST && env.PGUSER && env.PGDATABASE) {
-    const port = env.PGPORT || '5432';
-    const user = encodeURIComponent(env.PGUSER);
-    const pass = encodeURIComponent(env.PGPASSWORD || '');
-    const auth = env.PGPASSWORD ? `${user}:${pass}` : user;
-    return `postgresql://${auth}@${env.PGHOST}:${port}/${encodeURIComponent(env.PGDATABASE)}`;
+  const pgHost = cleanEnvValue(env.PGHOST);
+  const pgUser = cleanEnvValue(env.PGUSER);
+  const pgDb = cleanEnvValue(env.PGDATABASE);
+  if (pgHost && pgUser && pgDb) {
+    const port = cleanEnvValue(env.PGPORT) || '5432';
+    const user = encodeURIComponent(pgUser);
+    const passRaw = cleanEnvValue(env.PGPASSWORD);
+    const pass = encodeURIComponent(passRaw);
+    const auth = passRaw ? `${user}:${pass}` : user;
+    return `postgresql://${auth}@${pgHost}:${port}/${encodeURIComponent(pgDb)}`;
   }
-  return env.DATABASE_URL || '';
+  return cleanEnvValue(env.DATABASE_URL);
 }
 
 const rawEnv = parsed.data;

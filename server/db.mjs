@@ -415,7 +415,7 @@ export async function initDatabase(options = {}) {
 
   const dbUrl = options.databaseUrl ?? config.databaseUrl;
   if (dbUrl && /^postgres(?:ql)?:\/\//i.test(dbUrl)) {
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
         pgPool = await connectPostgresWithAdaptiveSsl(dbUrl);
         engineType = 'postgresql';
@@ -426,7 +426,7 @@ export async function initDatabase(options = {}) {
       } catch (err) {
         pgPool = null;
         const transient = /EAI_AGAIN|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|timeout/i.test(`${err?.code || ''} ${err?.message || ''}`);
-        if (attempt === 1 && transient) {
+        if (attempt < 3 && transient) {
           await new Promise((r) => setTimeout(r, 1200));
           continue;
         }
@@ -434,6 +434,10 @@ export async function initDatabase(options = {}) {
         break;
       }
     }
+  } else if (dbUrl && options.sqlitePathOverride !== ':memory:') {
+    console.warn(`[db] DATABASE_URL prefix mismatch (prefix="${dbUrl.slice(0, 6)}", len=${dbUrl.length}) — using SQLite.`);
+  } else if (options.sqlitePathOverride !== ':memory:') {
+    console.info('[db] SQLite active (no PostgreSQL DATABASE_URL detected in environment).');
   }
 
   try {
